@@ -89,6 +89,6 @@ struct StartButton: View {
                     )
                 )
                 .cornerRadius(30)
-        }
+        }.environmentObject(GameViewModel())
     }
 }

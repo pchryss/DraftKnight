@@ -16,13 +16,13 @@ import SwiftUI
 //      Requires us to provide a body property that defines the view layout
 struct GameView: View {
     
-    @StateObject private var gameModel = GameViewModel()
+    @EnvironmentObject private var model: GameViewModel
     @State var activePosition: String? = nil
-    @State var activePlayer: Binding<String>?
+    @State var activePlayer: Binding<PlayerFromDB?>?
 
     @State var canSelect: Bool = false
-    
-    @State var selectedPlayers = Array(repeating: "", count: 7)
+    @State var score: Double = 0
+    @State var selectedPlayers: [PlayerFromDB?] = [nil, nil, nil, nil, nil, nil, nil]
     
     var isOptionOneEnabled: Bool = true
     // @StateObject creates a single instance of a view model and tells SwiftUI to watch for changes
@@ -46,31 +46,31 @@ struct GameView: View {
                 
                 VStack {
                     if isOptionOneEnabled {
-                        Text("Current Score: 0")
+                        Text("Current Score: "+(String(format: "%.2f", score)))
                             .foregroundColor(.white)
                     }
-                    Player(playerName: $selectedPlayers[0], position: "QB", canSelect: canSelect) {
+                    Player(player: $selectedPlayers[0], position: "QB", canSelect: canSelect) {
                         openPopup(for: "QB", player: $selectedPlayers[0])
                     }
-                    Player(playerName: $selectedPlayers[1], position: "RB", canSelect: canSelect) {
+                    Player(player: $selectedPlayers[1], position: "RB", canSelect: canSelect) {
                         openPopup(for: "RB", player: $selectedPlayers[1])
                     }
-                    Player(playerName: $selectedPlayers[2], position: "WR", canSelect: canSelect) {
+                    Player(player: $selectedPlayers[2], position: "WR", canSelect: canSelect) {
                         openPopup(for: "WR", player: $selectedPlayers[2])
                     }
-                    Player(playerName: $selectedPlayers[3], position: "WR", canSelect: canSelect) {
+                    Player(player: $selectedPlayers[3], position: "WR", canSelect: canSelect) {
                         openPopup(for: "WR", player: $selectedPlayers[3])
                     }
-                    Player(playerName: $selectedPlayers[4], position: "TE", canSelect: canSelect) {
+                    Player(player: $selectedPlayers[4], position: "TE", canSelect: canSelect) {
                         openPopup(for: "TE", player: $selectedPlayers[4])
                     }
-                    Player(playerName: $selectedPlayers[5], position: "FLEX", canSelect: canSelect) {
+                    Player(player: $selectedPlayers[5], position: "FLEX", canSelect: canSelect) {
                         openPopup(for: "FLEX", player: $selectedPlayers[5])
                     }
-                    Player(playerName: $selectedPlayers[6], position: "FLEX", canSelect: canSelect) {
+                    Player(player: $selectedPlayers[6], position: "FLEX", canSelect: canSelect) {
                         openPopup(for: "FLEX", player: $selectedPlayers[6])
                     }
-                    DraftingFrom(model: gameModel, canSelect: $canSelect)
+                    DraftingFrom(canSelect: $canSelect)
                 }
                 .blur(radius: activePosition == nil ? 0 : 5)
                 .disabled(activePosition != nil)
@@ -82,7 +82,7 @@ struct GameView: View {
                             closePopup()
                         }
                     
-                    PickPlayer(position: position, onPlayerPicked: onPlayerPicked, gameModel: gameModel)
+                    PickPlayer(position: position, onPlayerPicked: onPlayerPicked)
                     .frame(width: 320, height: 320)
                     .transition(.scale)
                     .zIndex(1)
@@ -96,11 +96,11 @@ struct GameView: View {
     }
     
     func randomize() async {
-        await gameModel.randomizeTeam()
+        await model.randomizeTeam()
         canSelect = true
     }
     
-    func openPopup(for position: String, player: Binding<String>) {
+    func openPopup(for position: String, player: Binding<PlayerFromDB?>) {
         activePosition = position
         activePlayer = player
     }
@@ -108,20 +108,19 @@ struct GameView: View {
         activePosition = nil
     }
     
-    func onPlayerPicked(playerName: String) async {
+    func onPlayerPicked(playerName: PlayerFromDB) async {
         closePopup()
         activePlayer?.wrappedValue = playerName
-        gameModel.selectedTeam = nil
+        score += activePlayer?.wrappedValue?.points ?? 0
+        model.selectedTeam = nil
         canSelect = false
         await randomize()
     }
 }
 
 struct DraftingFrom: View {
-    
-    @ObservedObject var model: GameViewModel
     @Binding var canSelect: Bool
-    
+    @EnvironmentObject var model: GameViewModel
     var body: some View {
         VStack {
             Text("Drafting From:")
@@ -157,7 +156,7 @@ struct DraftingFrom: View {
 }
 
 struct Player: View {
-    @Binding var playerName: String
+    @Binding var player: PlayerFromDB?
     var position: String = "QB"
     var canSelect: Bool
     var onSelect: () -> Void
@@ -182,38 +181,8 @@ struct Player: View {
                     ))
                     .cornerRadius(12)
 
-                    
                     Spacer()
-                    if playerName == "" {
-                        VStack {
-                            Text("+ Select \(position)")
-                                .foregroundColor(canSelect ? .white : .gray)
-                                .padding()
-                        }
-                        .frame(maxWidth: 300, maxHeight: 50)
-                        .background(Color.white.opacity(canSelect ? 0.1 : 0.05))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(canSelect ? Color.white : Color.gray, lineWidth: 2)
-                        )
-                        .onTapGesture {
-                            if canSelect {
-                                onSelect()
-                            }
-                        }
-                    } else {
-                        VStack {
-                            Text(playerName)
-                                .foregroundColor(canSelect ? .white : .gray)
-                                .padding()
-                        }
-                        .frame(maxWidth: 300, maxHeight: 50)
-                        .background(Color.white.opacity(canSelect ? 0.1 : 0.05))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(canSelect ? Color.white : Color.gray, lineWidth: 2)
-                        )
-                    }
+                    SelectField(player: player, canSelect: canSelect, onSelect: onSelect)
                 }
                 .frame(width: 300, height: 50)
                 
@@ -223,19 +192,72 @@ struct Player: View {
     }
 }
 
+struct SelectField: View {
+    @EnvironmentObject var model: GameViewModel
+
+    var player: PlayerFromDB?
+    var canSelect: Bool
+    var onSelect: () -> Void
+    var position: String = "QB"
+    var body: some View {
+        if player == nil {
+            VStack {
+                Text("+ Select \(position)")
+                    .foregroundColor(canSelect ? .white : .gray)
+                    .padding()
+            }
+            .frame(maxWidth: 300, maxHeight: 50)
+            .background(Color.white.opacity(canSelect ? 0.1 : 0.05))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(canSelect ? Color.white : Color.gray, lineWidth: 2)
+            )
+            .onTapGesture {
+                if canSelect {
+                    onSelect()
+                }
+            }
+        } else {
+            HStack {
+                Image(model.teams[player!.team]?.logoPath ?? "").resizable()
+                    .scaledToFit()
+                    .frame(width: 40, height: 40)
+                    .padding()
+                VStack {
+                    Text(player?.name ?? "")
+                        .foregroundColor(canSelect ? .white : .gray)
+                        .padding()
+                }
+                VStack {
+                    Text(String(format: "%.2f", player?.points ?? 0))
+                        .foregroundColor(canSelect ? .white : .gray)
+                    Text("\(player?.year ?? 0)")
+                        .foregroundColor(canSelect ? .white : .gray)
+
+                }
+            }
+            .frame(maxWidth: 300, maxHeight: 50)
+            .background(model.teams[player!.team]?.backgroundColor.opacity(canSelect ? 1 : 0.05))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(canSelect ? Color.white : Color.gray, lineWidth: 2)
+            )
+        }
+    }
+}
+
 struct PickPlayer: View {
         
     var position: String = "QB"
-    var onPlayerPicked: (String) async -> Void
-    
+    var onPlayerPicked: (PlayerFromDB) async -> Void
+    @EnvironmentObject var model: GameViewModel
     @FocusState private var isFocused: Bool
     let players: [PlayerFromDB] = []
     @State var searchText = ""
-    @ObservedObject var gameModel: GameViewModel
     var team: String {
-        gameModel.selectedTeam?.db ?? ""
+        model.selectedTeam?.db ?? ""
     }
-    var filteredItems: [PlayerFromDB] { gameModel.filteredPlayers(searchText: searchText)
+    var filteredItems: [PlayerFromDB] { model.filteredPlayers(searchText: searchText)
     }
     var body: some View {
         VStack {
@@ -248,7 +270,7 @@ struct PickPlayer: View {
                 Text(item.name)
                     .onTapGesture {
                         Task {
-                            await onPlayerPicked(item.name)
+                            await onPlayerPicked(item)
                         }
                     }
             }.frame(height: 200)
@@ -270,12 +292,12 @@ struct PickPlayer: View {
         )
         .padding()
         .onAppear {
-            gameModel.fetchPlayers(team: team, position: position)
+            model.fetchPlayers(team: team, position: position)
         }
     }
 }
 
 #Preview {
-    GameView()
+    GameView().environmentObject(GameViewModel())
 }
 

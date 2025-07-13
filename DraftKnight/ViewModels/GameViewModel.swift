@@ -18,15 +18,15 @@ class GameViewModel: ObservableObject {
     @Published var selectedTeam: Team? = nil
     @Published var players: [PlayerFromDB] = []
     private var db = Firestore.firestore()
-    var teams: [Team] = [
-        Team(name: "New York Jets", logoPath: "Jets", backgroundColor: Color(red: 18/255, green: 87/255, blue: 64/255), db: "NYJ"),
-        Team(name: "New England Patriots", logoPath: "Patriots", backgroundColor: Color(red: 0/255, green: 34/255, blue: 68/255), db: "NE"),
-        Team(name: "Buffalo Bills", logoPath: "Bills", backgroundColor: Color(red: 0/255, green: 51/255, blue: 141/255), db: "BUF"),
-        Team(name: "Miami Dolphins", logoPath: "Dolphins", backgroundColor: Color(red: 0/255, green: 142/255, blue: 151/255), db: "MIA")
+    var teams: [String: Team] = [
+        "NYJ": Team(name: "New York Jets", logoPath: "Jets", backgroundColor: Color(red: 18/255, green: 87/255, blue: 64/255), db: "NYJ"),
+        "NE": Team(name: "New England Patriots", logoPath: "Patriots", backgroundColor: Color(red: 0/255, green: 34/255, blue: 68/255), db: "NE"),
+        "BUF": Team(name: "Buffalo Bills", logoPath: "Bills", backgroundColor: Color(red: 0/255, green: 51/255, blue: 141/255), db: "BUF"),
+        "MIA": Team(name: "Miami Dolphins", logoPath: "Dolphins", backgroundColor: Color(red: 0/255, green: 142/255, blue: 151/255), db: "MIA")
     ]
     func randomizeTeam() async {
         for _ in 1...5 {
-            selectedTeam = teams[Int.random(in: 0..<teams.count)]
+            selectedTeam = teams.values.randomElement()
             try? await Task.sleep(nanoseconds: 250_000_000)
 
         }
