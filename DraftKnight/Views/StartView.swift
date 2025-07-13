@@ -73,7 +73,7 @@ struct StartButton: View {
     var isOptionOneEnabled: Bool
     
     var body: some View {
-        NavigationLink(destination: GameView(isOptionOneEnabled: isOptionOneEnabled)) {
+        NavigationLink(destination: GameView(isOptionOneEnabled: isOptionOneEnabled).environmentObject(GameViewModel())) {
             Text("Start Game")
                 .foregroundColor(.black)
                 .font(.system(size: 20, weight: .regular, design: .default))

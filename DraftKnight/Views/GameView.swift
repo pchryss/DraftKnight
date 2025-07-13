@@ -182,7 +182,7 @@ struct Player: View {
                     .cornerRadius(12)
 
                     Spacer()
-                    SelectField(player: player, canSelect: canSelect, onSelect: onSelect)
+                    SelectField(player: player, canSelect: canSelect, onSelect: onSelect, position: position)
                 }
                 .frame(width: 300, height: 50)
                 
