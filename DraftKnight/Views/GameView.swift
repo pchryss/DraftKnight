@@ -184,7 +184,7 @@ struct Player: View {
                     Spacer()
                     SelectField(player: player, canSelect: canSelect, onSelect: onSelect, position: position)
                 }
-                .frame(width: 300, height: 50)
+                .frame(width: 350, height: 50)
                 
             }
         }
@@ -218,29 +218,47 @@ struct SelectField: View {
                 }
             }
         } else {
+            let parts = player?.name.split(separator: " ", maxSplits: 1)
+            let firstName = parts?.first.map(String.init) ?? ""
+            let lastName = parts?.dropFirst().first.map(String.init) ?? ""
             HStack {
                 Image(model.teams[player!.team]?.logoPath ?? "").resizable()
                     .scaledToFit()
                     .frame(width: 40, height: 40)
                     .padding()
+                Spacer()
                 VStack {
-                    Text(player?.name ?? "")
-                        .foregroundColor(canSelect ? .white : .gray)
-                        .padding()
+                    Text(firstName)
+                        .foregroundColor(.white)
+                        .font(.system(size: 20))
+                        .lineLimit(1)
+                        .layoutPriority(1)
+                        .minimumScaleFactor(0.5)
+
+                    Text(lastName)
+                        .foregroundColor(.white)
+                        .font(.system(size: 20))
+                        .lineLimit(1)
+                        .layoutPriority(1)
+                        .minimumScaleFactor(0.5)
                 }
+                Spacer()
                 VStack {
                     Text(String(format: "%.2f", player?.points ?? 0))
-                        .foregroundColor(canSelect ? .white : .gray)
-                    Text("\(player?.year ?? 0)")
-                        .foregroundColor(canSelect ? .white : .gray)
-
+                        .foregroundColor(.white)
+                    Text(String((player?.year ?? 0)))
+                        .foregroundColor(.white)
+                        .font(.system(size: 12))
                 }
+                .frame(width: 55)
+                .padding()
+                
             }
             .frame(maxWidth: 300, maxHeight: 50)
-            .background(model.teams[player!.team]?.backgroundColor.opacity(canSelect ? 1 : 0.05))
+            .background(model.teams[player!.team]?.backgroundColor)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(canSelect ? Color.white : Color.gray, lineWidth: 2)
+                    .stroke(Color.white, lineWidth: 2)
             )
         }
     }
