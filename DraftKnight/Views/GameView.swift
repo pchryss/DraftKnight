@@ -34,13 +34,12 @@ struct GameView: View {
             ZStack {
                 Color.black.ignoresSafeArea(edges: .all)
                 LinearGradient(
-                    gradient: Gradient(stops: [
-                        .init(color: Color(red: 27/255, green: 24/255, blue: 49/255), location: 0),
-                        .init(color: Color(red: 54/255, green: 48/255, blue: 98/255).opacity(0.3), location: 0.5),
-                        .init(color: Color(red: 27/255, green: 24/255, blue: 49/255), location: 1)
-                    ]),
-                    startPoint: UnitPoint(x: 1.68, y: -0.24),
-                    endPoint: UnitPoint(x: -0.70, y: 0.75)
+                            gradient: Gradient(stops: [
+                        .init(color: Color(#colorLiteral(red: 0.07058823853731155, green: 0.07058823853731155, blue: 0.07450980693101883, alpha: 1)), location: 0),
+                        .init(color: Color(#colorLiteral(red: 0.10196078568696976, green: 0.10196078568696976, blue: 0.11372549086809158, alpha: 1)), location: 0.7195587754249573),
+                        .init(color: Color(#colorLiteral(red: 0.08235294371843338, green: 0.08235294371843338, blue: 0.08235294371843338, alpha: 1)), location: 1)]),
+                            startPoint: UnitPoint(x: 1.1131840781819538, y: 0.034324952532510944),
+                            endPoint: UnitPoint(x: -0.08582107197307076, y: 0.9084668511127786)
                 )
                 .ignoresSafeArea()
                 
@@ -212,6 +211,7 @@ struct SelectField: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(canSelect ? Color.white : Color.gray, lineWidth: 2)
             )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .onTapGesture {
                 if canSelect {
                     onSelect()
@@ -260,6 +260,7 @@ struct SelectField: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.white, lineWidth: 2)
             )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
 }
