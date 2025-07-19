@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2610B06E2E22157800BC5F67 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 2610B06D2E22157800BC5F67 /* FirebaseFirestore */; };
 		2610B0AD2E2216E300BC5F67 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 2610B0AC2E2216DB00BC5F67 /* .gitignore */; };
+		26539F592E26CBA10042CEF0 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 26539F582E26CBA10042CEF0 /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +60,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2610B06E2E22157800BC5F67 /* FirebaseFirestore in Frameworks */,
+				26539F592E26CBA10042CEF0 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,6 +123,7 @@
 			name = DraftKnight;
 			packageProductDependencies = (
 				2610B06D2E22157800BC5F67 /* FirebaseFirestore */,
+				26539F582E26CBA10042CEF0 /* Lottie */,
 			);
 			productName = DraftKnight;
 			productReference = 2610B0102E2214C300BC5F67 /* DraftKnight.app */;
@@ -206,6 +209,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2610B06C2E22157800BC5F67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				26539F572E26CBA10042CEF0 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2610B0112E2214C300BC5F67 /* Products */;
@@ -581,6 +585,14 @@
 				minimumVersion = 11.15.0;
 			};
 		};
+		26539F572E26CBA10042CEF0 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -588,6 +600,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2610B06C2E22157800BC5F67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		26539F582E26CBA10042CEF0 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 26539F572E26CBA10042CEF0 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
