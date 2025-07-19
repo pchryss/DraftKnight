@@ -27,6 +27,8 @@ Database : Firestore
 
 ### July 13, 2025
 Implemented the redesign
+<img src="images/6_home.PNG" alt="Home Screen Implementation" width="400"/>
+
 ![Home Screen](images/6_home.PNG)
 ![Home Screen](images/6_start.PNG)
 ![Home Screen](images/6_game.PNG)
