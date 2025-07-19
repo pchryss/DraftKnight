@@ -10,12 +10,12 @@ DraftKnight is essentially a mobile version of a popular web-based game amongst 
 git clone https://github.com/pchryss/DraftKnight
 cd DraftKnight
 ``` 
-Open. `HomeView.swift` in XCode and open the Canvas to preview the game.
+Open `HomeView.swift` in XCode and open the Canvas to preview the game.
 
 ## 🛠️ Tools
-Design : Figma
-Development : Swift, SwiftUI
-Database : Firestore
+* Design : Figma
+* Development : Swift, SwiftUI, Python (web scraping for player db)
+* Database : Firestore
 
 ## 🗺️ Roadmap
 * Authentication
