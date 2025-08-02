@@ -24,7 +24,7 @@ struct GameView: View {
     @State var score: Double = 0
     @State var selectedPlayers: [PlayerFromDB?] = [nil, nil, nil, nil, nil, nil, nil]
     
-    var isOptionOneEnabled: Bool = true
+    var isOptionOneEnabled: Bool = false
     // @StateObject creates a single instance of a view model and tells SwiftUI to watch for changes
     
     // required property of the view protocol
@@ -44,7 +44,7 @@ struct GameView: View {
                 .ignoresSafeArea()
                 
                 VStack {
-                    if isOptionOneEnabled {
+                    if  !isOptionOneEnabled {
                         Text("Current Score: "+(String(format: "%.2f", score)))
                             .foregroundColor(.white)
                     }

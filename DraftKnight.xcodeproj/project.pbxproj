@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2610B06E2E22157800BC5F67 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 2610B06D2E22157800BC5F67 /* FirebaseFirestore */; };
 		2610B0AD2E2216E300BC5F67 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 2610B0AC2E2216DB00BC5F67 /* .gitignore */; };
+		264106B32E3EB48800DF25FB /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 264106B22E3EB48800DF25FB /* FirebaseAuth */; };
 		26539F592E26CBA10042CEF0 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 26539F582E26CBA10042CEF0 /* Lottie */; };
 /* End PBXBuildFile section */
 
@@ -60,6 +61,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2610B06E2E22157800BC5F67 /* FirebaseFirestore in Frameworks */,
+				264106B32E3EB48800DF25FB /* FirebaseAuth in Frameworks */,
 				26539F592E26CBA10042CEF0 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -124,6 +126,7 @@
 			packageProductDependencies = (
 				2610B06D2E22157800BC5F67 /* FirebaseFirestore */,
 				26539F582E26CBA10042CEF0 /* Lottie */,
+				264106B22E3EB48800DF25FB /* FirebaseAuth */,
 			);
 			productName = DraftKnight;
 			productReference = 2610B0102E2214C300BC5F67 /* DraftKnight.app */;
@@ -600,6 +603,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2610B06C2E22157800BC5F67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		264106B22E3EB48800DF25FB /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2610B06C2E22157800BC5F67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
 		};
 		26539F582E26CBA10042CEF0 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;

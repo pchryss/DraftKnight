@@ -21,9 +21,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct DraftKnight: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
+    
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            AuthView()
         }
     }
 }

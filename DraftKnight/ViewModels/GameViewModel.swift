@@ -60,7 +60,7 @@ class GameViewModel: ObservableObject {
         }
     }
     func fetchPlayers(team: String, position: String) {
-        let baseQuery = db.collection("teams").document(team).collection("players")  // ✅ top-level collection
+        let baseQuery = db.collection("teams").document(team).collection("players")
         if position != "FLEX" {
             
             baseQuery
