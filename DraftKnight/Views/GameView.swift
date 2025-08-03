@@ -7,6 +7,8 @@
 
 
 import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
 
 // Views are almost always defined using structs instead of classes
 //      They are lightweight, and be recreated easily, and have value semantics (for diffing)
@@ -14,6 +16,9 @@ import SwiftUI
 // : View says ContentView conforms to the View protool
 //      A view is anything that can be displayed on screen
 //      Requires us to provide a body property that defines the view layout
+
+
+
 struct GameView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject private var model: GameViewModel
@@ -125,6 +130,7 @@ struct GameView: View {
         playersPicked += 1
         if playersPicked == 1 {
             isPlaying = false
+            saveGameToFirestore(score: score)
         } else {
             canSelect = false
             await randomize()
@@ -385,6 +391,27 @@ struct PickPlayer: View {
             model.fetchPlayers(team: team, position: position)
         }
     }
+}
+
+func saveGameToFirestore(score: Double) {
+    guard let userID = Auth.auth().currentUser?.uid else {
+        return
+    }
+    let db = Firestore.firestore()
+    let gamesRef = db.collection("users").document(userID).collection("games")
+    let gameData: [String: Any] = [
+        "score": score,
+        "data": Timestamp(date: Date())
+    ]
+    gamesRef.addDocument(data: gameData) { error in
+        if let error = error {
+            print("Error saving game: \(error.localizedDescription)")
+        } else {
+            print("Game saved successfully")
+
+        }
+    }
+                                                            
 }
 
 #Preview {
