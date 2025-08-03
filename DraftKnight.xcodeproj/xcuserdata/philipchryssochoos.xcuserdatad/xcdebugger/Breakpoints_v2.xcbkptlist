@@ -34,36 +34,6 @@
             endingLineNumber = "17"
             landmarkName = "GameView"
             landmarkType = "14">
-            <Locations>
-               <Location
-                  uuid = "5CBA506B-6780-4B6E-A7C1-8D497C7707E5 - dff05cdcfb47c2f1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "DraftKnight.GameView.init() -&gt; DraftKnight.GameView"
-                  moduleName = "DraftKnight.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/philipchryssochoos/Desktop/Repos/Personal/Swift/DraftKnight/DraftKnight/Views/GameView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "18"
-                  endingLineNumber = "18">
-               </Location>
-               <Location
-                  uuid = "5CBA506B-6780-4B6E-A7C1-8D497C7707E5 - d3ff204af419520b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "DraftKnight.GameView.init(dismiss: SwiftUI.Environment&lt;SwiftUI.DismissAction&gt;, activePosition: Swift.Optional&lt;Swift.String&gt;, activePlayer: Swift.Optional&lt;SwiftUI.Binding&lt;Swift.Optional&lt;DraftKnight.PlayerFromDB&gt;&gt;&gt;, canSelect: Swift.Bool, score: Swift.Double, selectedPlayers: Swift.Array&lt;Swift.Optional&lt;DraftKnight.PlayerFromDB&gt;&gt;, isOptionOneEnabled: Swift.Bool) -&gt; DraftKnight.GameView"
-                  moduleName = "DraftKnight.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/philipchryssochoos/Desktop/Repos/Personal/Swift/DraftKnight/DraftKnight/Views/GameView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

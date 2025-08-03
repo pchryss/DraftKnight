@@ -71,4 +71,15 @@ class AuthViewModel: ObservableObject {
             }
         }
     }
+    
+    func signOut() {
+        do {
+            try Auth.auth().signOut()
+            DispatchQueue.main.async {
+                self.isAuthenticated = false
+            }
+        } catch {
+            print("Sign out error: \(error.localizedDescription)")
+        }
+    }
 }

@@ -6,10 +6,8 @@
 //
 import SwiftUI
 
-struct StartView: View {
-    @State private var isOptionOneEnabled = false
-    @State private var showGame = false
-    @StateObject private var gameViewModel = GameViewModel()
+struct ProfileView: View {
+    @EnvironmentObject var authModel: AuthViewModel
 
     var body: some View {
         ZStack {
@@ -25,65 +23,30 @@ struct StartView: View {
             .ignoresSafeArea()
             
             VStack {
-                //AppHomeLogo()
-                // we are passing a binding here, so that GameSettings can read and write here
-                GameSettings(isOptionOneEnabled: $isOptionOneEnabled)
                 
                 // we dont need to pass a binding here because the next view doesnt care about changing it, just the value
-                StartButton(isOptionOneEnabled: isOptionOneEnabled) {
-                    showGame = true
+                LogOutButton() {
+                    authModel.signOut()
                 }
-                //.padding(.top, 250)
             }
-        }
-        .fullScreenCover(isPresented: $showGame) {
-            GameView(isOptionOneEnabled: isOptionOneEnabled)
-                .environmentObject(gameViewModel)
         }
     }
 }
 
 #Preview {
-    StartView()
+    ProfileView()
 }
 
-struct GameSettings: View {
-    
-    @Binding var isOptionOneEnabled: Bool
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            checkbox("Hide Points", isOn: $isOptionOneEnabled)
-        }
-        .padding()
-    }
-    
-    @ViewBuilder
-    private func checkbox(_ label: String, isOn: Binding<Bool>) -> some View {
-        HStack(spacing: 8) {
-            Button(action: {
-                isOn.wrappedValue.toggle()
-            }) {
-                Image(systemName: isOn.wrappedValue ? "checkmark.square" : "square")
-                    .foregroundColor(.white)
-            }
-            Text(label)
-                .foregroundColor(.white)
-                .font(.custom("Avenir", size: 20))
-        }
-    }
-}
 
-struct StartButton: View {
+struct LogOutButton: View {
     
-    var isOptionOneEnabled: Bool
-    let onStart: () -> Void
+    let onClick: () -> Void
 
     var body: some View {
         Button(action: {
-            onStart()
+            onClick()
         }) {
-            Text("Start Game")
+            Text("Log Out")
                 .foregroundColor(.black)
                 .font(.custom("Avenir", size: 20))
             

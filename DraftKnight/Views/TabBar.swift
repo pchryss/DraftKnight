@@ -28,7 +28,7 @@ struct TabBar: View {
                 }
                 .tag(1)
             
-            StartView()
+            ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
