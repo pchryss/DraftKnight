@@ -22,10 +22,26 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct DraftKnight: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
+    @StateObject private var authModel = AuthViewModel()
     
     var body: some Scene {
         WindowGroup {
-            AuthView()
+            RootView()
+                .environmentObject(authModel)
+        }
+    }
+}
+
+struct RootView: View {
+    @EnvironmentObject var authModel: AuthViewModel
+    
+    var body: some View {
+        Group {
+            if authModel.isAuthenticated {
+                StartView()
+            } else {
+                AuthView()
+            }
         }
     }
 }

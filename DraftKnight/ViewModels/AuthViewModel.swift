@@ -4,42 +4,71 @@
 //
 //  Created by Philip Chryssochoos on 8/2/25.
 //
+import Foundation
 import FirebaseAuth
 import Combine
 
 class AuthViewModel: ObservableObject {
-    @Published var user: User? = Auth.auth().currentUser
+    @Published var email = ""
+    @Published var password = ""
+    @Published var confirmPassword = ""
+    @Published var errorMessage: String?
+    @Published var isLoading = false
+    @Published var isAuthenticated = false
+    private var cancellables = Set<AnyCancellable>()
     
-    func signUp(email: String, password: String) {
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            if let user = result?.user {
-                DispatchQueue.main.async {
-                    self.user = user
+    init() {
+        if Auth.auth().currentUser != nil {
+            self.isAuthenticated = true
+        } else {
+            self.isAuthenticated = false
+        }
+    }
+    
+    func login() {
+        guard !email.isEmpty, !password.isEmpty else {
+            errorMessage = "Please fill in all fields."
+            return
+        }
+        isLoading = true
+        errorMessage = nil
+        
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                if let error = error {
+                    print("Firebase log-in error: \(error.localizedDescription)")
+                    self?.errorMessage = error.localizedDescription
+                } else {
+                    self?.isAuthenticated = true
                 }
-            } else {
-                print("Signup error: \(error?.localizedDescription ?? "No error")")
             }
         }
     }
     
-    func signIn(email: String, password: String) {
-        Auth.auth().signIn(withEmail: email, password: password) { result, error in
-            if let user = result?.user {
-                DispatchQueue.main.async {
-                    self.user = user
-                }
-            } else {
-                print("Signin error: \(error?.localizedDescription ?? "No error")")
-            }
+    func signUp() {
+        guard !email.isEmpty, !password.isEmpty, !confirmPassword.isEmpty else {
+            errorMessage = "Please fill in all fields."
+            return
         }
-    }
-    
-    func signOut() {
-        do {
-            try Auth.auth().signOut()
-            self.user = nil
-        } catch {
-            print("Signout error: \(error.localizedDescription)")
+        guard password == confirmPassword else {
+            errorMessage = "Passwords do not match."
+            return
+        }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                if let error = error {
+                    print("Firebase Sign-up error: \(error.localizedDescription)")
+                    self?.errorMessage = error.localizedDescription
+                } else {
+                    self?.isAuthenticated = true
+                }
+            }
         }
     }
 }

@@ -15,7 +15,7 @@ import SwiftUI
 struct AuthView: View {
     
     // @StateObject creates a single instance of a view model and tells SwiftUI to watch for changes
-    @StateObject private var viewModel = CounterViewModel()
+    @EnvironmentObject var authModel: AuthViewModel
     @State var usingLogin = true
     // required property of the view protocol
     // some View says we are returning a view, but not specifing
@@ -35,8 +35,20 @@ struct AuthView: View {
                 
                 VStack {
                     Logo().padding()
-                    Input(usingLogin: $usingLogin).padding()
-                    AuthButton(usingLogin: $usingLogin).padding()
+                    Input(usingLogin: $usingLogin)
+                        .environmentObject(authModel)
+                        .padding()
+                    if let errorMessage = authModel.errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                            .padding(.bottom, 10)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 325)
+                    }
+                    AuthButton(usingLogin: $usingLogin)
+                        .environmentObject(authModel)
+                        .padding()
                 }
             }
         }
@@ -45,6 +57,7 @@ struct AuthView: View {
 
 #Preview {
     AuthView()
+        .environmentObject(AuthViewModel())
 }
 
 struct InputField: View {
@@ -52,6 +65,22 @@ struct InputField: View {
     @Binding var input: String
     var body: some View {
         TextField(placeholder, text: $input)
+            .foregroundColor(.black)
+            .padding(.leading, 20)
+            .background(
+                RoundedRectangle(cornerRadius: 40)
+                    .fill(Color(red: 230 / 255, green: 230 / 255, blue: 230 / 255))
+                    .frame(width: 325, height: 65)
+            )
+            .frame(width: 325, height: 65)
+    }
+}
+
+struct SecureInputField: View {
+    var placeholder: String
+    @Binding var input: String
+    var body: some View {
+        SecureField(placeholder, text: $input)
             .foregroundColor(.black)
             .padding(.leading, 20)
             .background(
@@ -116,23 +145,21 @@ struct ToggleButton: View {
 }
 
 struct Input: View {
-    @State private var email = ""
-    @State private var password = ""
-    @State private var confirm = ""
+    @EnvironmentObject var authModel: AuthViewModel
 
     @Binding var usingLogin: Bool
 
     var body: some View {
         VStack {
             Toggle(usingLogin: $usingLogin)
-            InputField(placeholder: "Email", input: $email)
-            InputField(placeholder: "Password", input: $password)
+            InputField(placeholder: "Email", input: $authModel.email)
+            SecureInputField(placeholder: "Password", input: $authModel.password)
             Group {
                 if usingLogin {
                     Text("Forgot Password")
                         .foregroundColor(Color(red: 230 / 255, green: 230 / 255, blue: 230 / 255))
                 } else {
-                    InputField(placeholder: "Confirm Password", input: $confirm)
+                    SecureInputField(placeholder: "Confirm Password", input: $authModel.confirmPassword)
                 }
             }
             .frame(height: 65)
@@ -143,9 +170,12 @@ struct Input: View {
 }
 
 struct AuthButton: View {
+    @EnvironmentObject var authModel: AuthViewModel
     @Binding var usingLogin: Bool
     var body: some View {
-        NavigationLink(destination: StartView()) {
+        Button {
+            usingLogin ? authModel.login() : authModel.signUp()
+        } label: {
             Text(usingLogin ? "Log In" : "Create Account")
                 .font(.custom("Avenir", size: 20))
             
