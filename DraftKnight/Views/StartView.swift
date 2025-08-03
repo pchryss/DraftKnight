@@ -10,6 +10,7 @@ struct StartView: View {
     @State private var isOptionOneEnabled = false
     @State private var showGame = false
     @StateObject private var gameViewModel = GameViewModel()
+    @State private var gameSessionID = UUID()
 
     var body: some View {
         ZStack {
@@ -37,8 +38,15 @@ struct StartView: View {
             }
         }
         .fullScreenCover(isPresented: $showGame) {
-            GameView(isOptionOneEnabled: isOptionOneEnabled)
+            GameView(isOptionOneEnabled: isOptionOneEnabled,
+                     onPlayAgain: {
+                gameSessionID = UUID()
+            },
+                     onGoToLobby: {
+                showGame = false
+            })
                 .environmentObject(gameViewModel)
+                .id(gameSessionID)
         }
     }
 }

@@ -25,7 +25,11 @@ struct GameView: View {
     @State var selectedPlayers: [PlayerFromDB?] = [nil, nil, nil, nil, nil, nil, nil]
     
     var isOptionOneEnabled: Bool = false
-    
+    var onPlayAgain: () -> Void
+    var onGoToLobby: () -> Void
+    @State var isPlaying: Bool = true
+    @State var playersPicked = 0
+    @State private var resetTrigger = UUID()
     var body: some View {
         NavigationStack {
             ZStack {
@@ -43,18 +47,29 @@ struct GameView: View {
 
                 VStack {
                     if !isOptionOneEnabled {
-                        Text("Current Score: \(String(format: "%.2f", score))")
-                            .foregroundColor(.white)
+                        if isPlaying {
+                            Text("Current Score: \(String(format: "%.2f", score))")
+                                .foregroundColor(.white)
+                        } else {
+                            Text("Final Score: \(String(format: "%.2f", score))")
+                                .foregroundColor(.white)
+                        }
                     }
-
                     ForEach(0..<7) { index in
                         let position = ["QB", "RB", "WR", "WR", "TE", "FLEX", "FLEX"][index]
                         Player(player: $selectedPlayers[index], position: position, canSelect: canSelect) {
                             openPopup(for: position, player: $selectedPlayers[index])
                         }
                     }
-
-                    DraftingFrom(canSelect: $canSelect)
+                    Group {
+                        if isPlaying {
+                            DraftingFrom(canSelect: $canSelect)
+                        } else {
+                            GameOver(onPlayAgain: onPlayAgain,
+                            onGoToLobby: onGoToLobby)
+                        }
+                    }
+                    .frame(height: 200)
                 }
                 .blur(radius: activePosition == nil ? 0 : 5)
                 .disabled(activePosition != nil)
@@ -107,11 +122,71 @@ struct GameView: View {
         activePlayer?.wrappedValue = playerName
         score += activePlayer?.wrappedValue?.points ?? 0
         model.selectedTeam = nil
-        canSelect = false
-        await randomize()
+        playersPicked += 1
+        if playersPicked == 1 {
+            isPlaying = false
+        } else {
+            canSelect = false
+            await randomize()
+        }
+
     }
 }
 
+struct PlayAgainButton: View {
+    
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text("Play Again")
+                .font(.custom("Avenir", size: 20))
+            
+                .foregroundColor(.black)
+                .frame(width: 200, height: 65)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 0xC7 / 255, green: 0xEE / 255, blue: 0xFF / 255),
+                            Color(red: 0x4D / 255, green: 0x6D / 255, blue: 0xE3 / 255)
+                        ]),
+                        startPoint: UnitPoint(x: -2.5, y: -2.5),
+                        endPoint: UnitPoint(x: 2.5, y: 2.5)
+                    )
+                )
+                .cornerRadius(30)
+        }                .frame(width: 200, height: 65)
+
+    }
+}
+
+struct LobbyButton: View {
+    var action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            Text("Lobby")
+                .font(.custom("Avenir", size: 20))
+            
+                .foregroundColor(.black)
+                .frame(width: 150, height: 55)
+                .background(
+                    Color(red: 190 / 255, green: 190 / 255, blue: 190 / 255)
+                )
+                .cornerRadius(30)
+        }
+    }
+}
+
+struct GameOver: View {
+    var onPlayAgain: () -> Void
+    var onGoToLobby: () -> Void
+    var body: some View {
+        VStack(spacing: 20) {
+            PlayAgainButton(action: onPlayAgain)
+            LobbyButton(action: onGoToLobby)
+        }
+    }
+}
 
 struct DraftingFrom: View {
     @Binding var canSelect: Bool
@@ -313,6 +388,11 @@ struct PickPlayer: View {
 }
 
 #Preview {
-    GameView().environmentObject(GameViewModel())
+    GameView(
+        isOptionOneEnabled: true,
+        onPlayAgain: {},
+        onGoToLobby: {}
+    )
+    .environmentObject(GameViewModel())
 }
 
