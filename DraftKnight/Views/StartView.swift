@@ -8,31 +8,37 @@ import SwiftUI
 
 struct StartView: View {
     @State private var isOptionOneEnabled = false
-    
+    @State private var showGame = false
+    @StateObject private var gameViewModel = GameViewModel()
+
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.black.ignoresSafeArea(edges: .all)
-                LinearGradient(
-                    gradient: Gradient(stops: [
-                        .init(color: Color(#colorLiteral(red: 0.07058823853731155, green: 0.07058823853731155, blue: 0.07450980693101883, alpha: 1)), location: 0),
-                        .init(color: Color(#colorLiteral(red: 0.10196078568696976, green: 0.10196078568696976, blue: 0.11372549086809158, alpha: 1)), location: 0.7195587754249573),
-                        .init(color: Color(#colorLiteral(red: 0.08235294371843338, green: 0.08235294371843338, blue: 0.08235294371843338, alpha: 1)), location: 1)]),
-                    startPoint: UnitPoint(x: 1.1131840781819538, y: 0.034324952532510944),
-                    endPoint: UnitPoint(x: -0.08582107197307076, y: 0.9084668511127786)
-                )
-                .ignoresSafeArea()
+        ZStack {
+            Color.black.ignoresSafeArea(edges: .all)
+            LinearGradient(
+                gradient: Gradient(stops: [
+                    .init(color: Color(#colorLiteral(red: 0.07058823853731155, green: 0.07058823853731155, blue: 0.07450980693101883, alpha: 1)), location: 0),
+                    .init(color: Color(#colorLiteral(red: 0.10196078568696976, green: 0.10196078568696976, blue: 0.11372549086809158, alpha: 1)), location: 0.7195587754249573),
+                    .init(color: Color(#colorLiteral(red: 0.08235294371843338, green: 0.08235294371843338, blue: 0.08235294371843338, alpha: 1)), location: 1)]),
+                startPoint: UnitPoint(x: 1.1131840781819538, y: 0.034324952532510944),
+                endPoint: UnitPoint(x: -0.08582107197307076, y: 0.9084668511127786)
+            )
+            .ignoresSafeArea()
+            
+            VStack {
+                //AppHomeLogo()
+                // we are passing a binding here, so that GameSettings can read and write here
+                GameSettings(isOptionOneEnabled: $isOptionOneEnabled)
                 
-                VStack {
-                    //AppHomeLogo()
-                    // we are passing a binding here, so that GameSettings can read and write here
-                    GameSettings(isOptionOneEnabled: $isOptionOneEnabled)
-                    
-                    // we dont need to pass a binding here because the next view doesnt care about changing it, just the value
-                    StartButton(isOptionOneEnabled: isOptionOneEnabled)
-                    //.padding(.top, 250)
+                // we dont need to pass a binding here because the next view doesnt care about changing it, just the value
+                StartButton(isOptionOneEnabled: isOptionOneEnabled) {
+                    showGame = true
                 }
+                //.padding(.top, 250)
             }
+        }
+        .fullScreenCover(isPresented: $showGame) {
+            GameView(isOptionOneEnabled: isOptionOneEnabled)
+                .environmentObject(gameViewModel)
         }
     }
 }
@@ -71,13 +77,16 @@ struct GameSettings: View {
 struct StartButton: View {
     
     var isOptionOneEnabled: Bool
-    
+    let onStart: () -> Void  // <- callback when pressed
+
     var body: some View {
-        NavigationLink(destination: GameView(isOptionOneEnabled: isOptionOneEnabled).environmentObject(GameViewModel())) {
+        Button(action: {
+            onStart()
+        }) {
             Text("Start Game")
                 .foregroundColor(.black)
                 .font(.custom("Avenir", size: 20))
-
+            
                 .frame(width: 150, height: 65)
                 .background(
                     LinearGradient(
@@ -90,6 +99,6 @@ struct StartButton: View {
                     )
                 )
                 .cornerRadius(30)
-        }.environmentObject(GameViewModel())
+        }
     }
 }

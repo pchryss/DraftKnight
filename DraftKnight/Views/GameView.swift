@@ -15,7 +15,7 @@ import SwiftUI
 //      A view is anything that can be displayed on screen
 //      Requires us to provide a body property that defines the view layout
 struct GameView: View {
-    
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject private var model: GameViewModel
     @State var activePosition: String? = nil
     @State var activePlayer: Binding<PlayerFromDB?>?
@@ -25,88 +25,83 @@ struct GameView: View {
     @State var selectedPlayers: [PlayerFromDB?] = [nil, nil, nil, nil, nil, nil, nil]
     
     var isOptionOneEnabled: Bool = false
-    // @StateObject creates a single instance of a view model and tells SwiftUI to watch for changes
     
-    // required property of the view protocol
-    // some View says we are returning a view, but not specifing
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea(edges: .all)
                 LinearGradient(
-                            gradient: Gradient(stops: [
-                        .init(color: Color(#colorLiteral(red: 0.07058823853731155, green: 0.07058823853731155, blue: 0.07450980693101883, alpha: 1)), location: 0),
-                        .init(color: Color(#colorLiteral(red: 0.10196078568696976, green: 0.10196078568696976, blue: 0.11372549086809158, alpha: 1)), location: 0.7195587754249573),
-                        .init(color: Color(#colorLiteral(red: 0.08235294371843338, green: 0.08235294371843338, blue: 0.08235294371843338, alpha: 1)), location: 1)]),
-                            startPoint: UnitPoint(x: 1.1131840781819538, y: 0.034324952532510944),
-                            endPoint: UnitPoint(x: -0.08582107197307076, y: 0.9084668511127786)
+                    gradient: Gradient(stops: [
+                        .init(color: Color(#colorLiteral(red: 0.0705, green: 0.0705, blue: 0.0745, alpha: 1)), location: 0),
+                        .init(color: Color(#colorLiteral(red: 0.1019, green: 0.1019, blue: 0.1137, alpha: 1)), location: 0.72),
+                        .init(color: Color(#colorLiteral(red: 0.0823, green: 0.0823, blue: 0.0823, alpha: 1)), location: 1)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
-                
+
                 VStack {
-                    if  !isOptionOneEnabled {
-                        Text("Current Score: "+(String(format: "%.2f", score)))
+                    if !isOptionOneEnabled {
+                        Text("Current Score: \(String(format: "%.2f", score))")
                             .foregroundColor(.white)
                     }
-                    Player(player: $selectedPlayers[0], position: "QB", canSelect: canSelect) {
-                        openPopup(for: "QB", player: $selectedPlayers[0])
+
+                    ForEach(0..<7) { index in
+                        let position = ["QB", "RB", "WR", "WR", "TE", "FLEX", "FLEX"][index]
+                        Player(player: $selectedPlayers[index], position: position, canSelect: canSelect) {
+                            openPopup(for: position, player: $selectedPlayers[index])
+                        }
                     }
-                    Player(player: $selectedPlayers[1], position: "RB", canSelect: canSelect) {
-                        openPopup(for: "RB", player: $selectedPlayers[1])
-                    }
-                    Player(player: $selectedPlayers[2], position: "WR", canSelect: canSelect) {
-                        openPopup(for: "WR", player: $selectedPlayers[2])
-                    }
-                    Player(player: $selectedPlayers[3], position: "WR", canSelect: canSelect) {
-                        openPopup(for: "WR", player: $selectedPlayers[3])
-                    }
-                    Player(player: $selectedPlayers[4], position: "TE", canSelect: canSelect) {
-                        openPopup(for: "TE", player: $selectedPlayers[4])
-                    }
-                    Player(player: $selectedPlayers[5], position: "FLEX", canSelect: canSelect) {
-                        openPopup(for: "FLEX", player: $selectedPlayers[5])
-                    }
-                    Player(player: $selectedPlayers[6], position: "FLEX", canSelect: canSelect) {
-                        openPopup(for: "FLEX", player: $selectedPlayers[6])
-                    }
+
                     DraftingFrom(canSelect: $canSelect)
                 }
                 .blur(radius: activePosition == nil ? 0 : 5)
                 .disabled(activePosition != nil)
-                
+
                 if let position = activePosition {
                     Color.black.opacity(0.4)
                         .ignoresSafeArea()
-                        .onTapGesture {
-                            closePopup()
-                        }
-                    
+                        .onTapGesture { closePopup() }
+
                     PickPlayer(position: position, onPlayerPicked: onPlayerPicked)
-                    .frame(width: 320, height: 320)
-                    .transition(.scale)
-                    .zIndex(1)
+                        .frame(width: 320, height: 320)
+                        .transition(.scale)
+                        .zIndex(1)
                 }
             }
-        }.onAppear() {
-            Task {
-                await randomize()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                Task { await randomize() }
             }
         }
     }
-    
+
     func randomize() async {
         await model.randomizeTeam()
         canSelect = true
     }
-    
+
     func openPopup(for position: String, player: Binding<PlayerFromDB?>) {
         activePosition = position
         activePlayer = player
     }
+
     func closePopup() {
         activePosition = nil
     }
-    
+
     func onPlayerPicked(playerName: PlayerFromDB) async {
         closePopup()
         activePlayer?.wrappedValue = playerName
@@ -116,6 +111,7 @@ struct GameView: View {
         await randomize()
     }
 }
+
 
 struct DraftingFrom: View {
     @Binding var canSelect: Bool
