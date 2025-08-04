@@ -31,7 +31,7 @@ A bunch of updates today
 * Designed and implemented a lightweight profile page with logout + top 5 scores functionality
 * Finished games are now saved to firestore
 * Implemented tab navigation
-There are a few things I need to clean up, but outside of that the base functionality of the app is finished
+There are a few things I need to clean up, but outside of that the base functionality of the app is finished (e.g. the floating point bug on the last image😅)
 <div style="display: flex; gap: 10px; align-items: flex-start;">
   <img src="images/8_design1.png" alt="post game design" height="200"/>
   <img src="images/8_design2.png" alt="profile design" height="200"/>
