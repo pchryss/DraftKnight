@@ -5,6 +5,8 @@
 //  Created by Philip Chryssochoos on 6/23/25.
 //
 import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
 
 struct ProfileView: View {
     @EnvironmentObject var authModel: AuthViewModel
@@ -23,8 +25,8 @@ struct ProfileView: View {
             .ignoresSafeArea()
             
             VStack {
-                
-                // we dont need to pass a binding here because the next view doesnt care about changing it, just the value
+                History()
+                    .padding(.bottom, 20)
                 LogOutButton() {
                     authModel.signOut()
                 }
@@ -32,11 +34,94 @@ struct ProfileView: View {
         }
     }
 }
+//func fetchPastGames(completion: @escaping ([Game]) -> Void) {
+//    guard let userID = Auth.auth().currentUser?.uid else { return }
+//    let db = Firestore.firestore()
+//    let gamesRef = db.collection("users").document(userID).collection("games")
+//    
+//}
 
 #Preview {
     ProfileView()
 }
 
+struct Game: View {
+    var rank: Int
+    var points: Double
+    var body: some View {
+        HStack {
+            Text(String(rank)+". "+String(points))
+                .foregroundColor(.white)
+                .padding(.leading, 20)
+            Spacer()
+            ViewButton()
+                .padding(.trailing, 20)
+        }
+        .frame(maxWidth: 250, maxHeight: 50)
+        .background(Color.white.opacity(0.1))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.white, lineWidth: 2)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+
+
+struct History: View {
+    @State private var topScores: [Double] = Array(repeating: -1, count: 5)
+    @State private var isLoading = true
+    var body: some View {
+        VStack {
+            Text("Your Best Games")
+                .foregroundColor(.white)
+            if isLoading {
+                ProgressView("Loading...")
+                    .foregroundColor(.white)
+                    .padding()
+            } else {
+                ForEach(0..<5, id: \.self) { index in
+                    Game(rank: index + 1, points: topScores[index])
+                }
+            }
+
+        }
+        .onAppear() {
+            fetchTop5Games { scores in
+                self.topScores = scores
+                self.isLoading = false
+            }
+        }
+    }
+}
+
+struct ViewButton: View {
+    
+
+    var body: some View {
+        Button(action: {
+            print("hello")
+        }) {
+            Text("View ")
+                .foregroundColor(.black)
+                .font(.custom("Avenir", size: 20))
+            
+                .frame(width: 70, height: 30)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 0xC7 / 255, green: 0xEE / 255, blue: 0xFF / 255),   // #C7EEFF
+                            Color(red: 0x4D / 255, green: 0x6D / 255, blue: 0xE3 / 255)  // #4D6DE3
+                        ]),
+                        startPoint: UnitPoint(x: -2.5, y: -2.5),
+                        endPoint: UnitPoint(x: 2.5, y: 2.5)
+                    )
+                )
+                .cornerRadius(30)
+        }
+    }
+}
 
 struct LogOutButton: View {
     
@@ -64,4 +149,39 @@ struct LogOutButton: View {
                 .cornerRadius(30)
         }
     }
+}
+
+func fetchTop5Games(completion: @escaping ([Double]) -> Void) {
+    guard let userID = Auth.auth().currentUser?.uid else {
+        completion([])
+        return
+    }
+    let db = Firestore.firestore()
+    let gamesRef = db.collection("users").document(userID).collection("games")
+    gamesRef
+        .order(by: "score", descending: true)
+        .limit(to: 5)
+        .getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching games: \(error.localizedDescription)")
+                completion(Array(repeating: -1.0, count: 5))
+                return
+            }
+            guard let documents = snapshot?.documents else {
+                completion(Array(repeating: -1.0, count: 5))
+                return
+            }
+            
+            var topScores: [Double] = []
+            for document in documents {
+                if let score = document.data()["score"] as? Double {
+                    topScores.append(score)
+                }
+            }
+            while topScores.count < 5 {
+                topScores.append(-1.0)
+            }
+            
+            completion(topScores)
+        }
 }

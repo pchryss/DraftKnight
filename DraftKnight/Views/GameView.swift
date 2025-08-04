@@ -128,7 +128,7 @@ struct GameView: View {
         score += activePlayer?.wrappedValue?.points ?? 0
         model.selectedTeam = nil
         playersPicked += 1
-        if playersPicked == 1 {
+        if playersPicked == 7 {
             isPlaying = false
             saveGameToFirestore(score: score)
         } else {
