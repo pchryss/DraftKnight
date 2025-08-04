@@ -8,9 +8,8 @@ DraftKnight is essentially a mobile version of a popular web-based game amongst 
 ## 🎮 How To Play! (only local in xcode currently :/)
 ```bash
 git clone https://github.com/pchryss/DraftKnight
-cd DraftKnight
 ``` 
-Open `HomeView.swift` in XCode and open the Canvas to preview the game.
+Open DraftKnight in XCode and load the project into your iOS device
 
 ## 🛠️ Tools
 * Design : Figma
