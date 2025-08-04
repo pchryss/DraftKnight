@@ -18,12 +18,35 @@ Open `HomeView.swift` in XCode and open the Canvas to preview the game.
 * Database : Firestore
 
 ## 🗺️ Roadmap
-* Authentication
-* Personal Leaderboards
+* Cleaning up UI / Functionality
 * Launch to App Store!
+* Global Leaderboards
 * Multiplayer Support
 
 ## 📸 Dev Log
+
+### August 3, 2025
+A bunch of updates today
+* Designed and implemented a "Play Again" / "Return to Lobby" post game state
+* Designed and implemented a lightweight profile page with logout + top 5 scores functionality
+* Finished games are now saved to firestore
+* Implemented tab navigation
+There are a few things I need to clean up, but outside of that the base functionality of the app is finished
+<div style="display: flex; gap: 10px; align-items: flex-start;">
+  <img src="images/8_design1.PNG" alt="post game design" height="200"/>
+  <img src="images/8_design2.PNG" alt="profile design" height="200"/>
+  <img src="images/8_tab.PNG" alt="tab implementation" height="200"/>
+  <img src="images/8_playagain.PNG" alt="post game implementation" height="200"/>
+  <img src="images/8_profile.PNG" alt="profile implementation" height="200"/>
+</div>
+
+### August 2, 2025
+Designed and implemented auth pages 🔐
+<div style="display: flex; gap: 10px; align-items: flex-start;">
+  <img src="images/7_design.PNG" alt="auth Screens design" height="200"/>
+  <img src="images/7_auth1.PNG" alt="log in implementation" height="200"/>
+  <img src="images/7_auth2.PNG" alt="sign up implementation" height="200"/>
+</div>
 
 ### July 13, 2025
 Implemented the redesign  
@@ -43,6 +66,10 @@ Designed and implemented the incremental search feature needed to play the game
   <img src="images/4_design.png" alt="Search Design" height="200"/>
   <img src="images/4_search.jpeg" alt="Search Implementation" height="200"/>
 </div>
+
+### July 2, 2025
+Created a web scraping script that scrapes some fantasy data from the internet.
+After cleaning the data a little bit, I now have a database of every NFL players best fantasy season with each team they played for since 2000
 
 ### June 23, 2025
 Began development! Development went pretty slow as it was my first time working with Swift / mobile development, but I was able to implement the three screens I had designed.  

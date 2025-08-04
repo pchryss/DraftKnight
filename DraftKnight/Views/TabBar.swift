@@ -13,9 +13,9 @@ struct TabBar: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             
-            StartView()
+            LeaderboardView()
                 .tabItem {
-                    Label("History", systemImage: "clock.fill")
+                    Label("Leaderboard", systemImage: "chart.bar.fill")
                 }
                 .tag(0)
             
