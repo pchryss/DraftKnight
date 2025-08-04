@@ -33,19 +33,19 @@ A bunch of updates today
 * Implemented tab navigation
 There are a few things I need to clean up, but outside of that the base functionality of the app is finished
 <div style="display: flex; gap: 10px; align-items: flex-start;">
-  <img src="images/8_design1.PNG" alt="post game design" height="200"/>
-  <img src="images/8_design2.PNG" alt="profile design" height="200"/>
-  <img src="images/8_tab.PNG" alt="tab implementation" height="200"/>
-  <img src="images/8_playagain.PNG" alt="post game implementation" height="200"/>
-  <img src="images/8_profile.PNG" alt="profile implementation" height="200"/>
+  <img src="images/8_design1.png" alt="post game design" height="200"/>
+  <img src="images/8_design2.png" alt="profile design" height="200"/>
+  <img src="images/8_tab.png" alt="tab implementation" height="200"/>
+  <img src="images/8_playagain.png" alt="post game implementation" height="200"/>
+  <img src="images/8_profile.png" alt="profile implementation" height="200"/>
 </div>
 
 ### August 2, 2025
 Designed and implemented auth pages 🔐
 <div style="display: flex; gap: 10px; align-items: flex-start;">
-  <img src="images/7_design.PNG" alt="auth Screens design" height="200"/>
-  <img src="images/7_auth1.PNG" alt="log in implementation" height="200"/>
-  <img src="images/7_auth2.PNG" alt="sign up implementation" height="200"/>
+  <img src="images/7_design.png" alt="auth Screens design" height="200"/>
+  <img src="images/7_auth1.png" alt="log in implementation" height="200"/>
+  <img src="images/7_auth2.png" alt="sign up implementation" height="200"/>
 </div>
 
 ### July 13, 2025
