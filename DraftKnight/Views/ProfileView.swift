@@ -50,7 +50,7 @@ struct Game: View {
     var points: Double
     var body: some View {
         HStack {
-            Text(String(rank)+". "+String(points))
+            Text("\(rank). \(points, specifier: "%.1f")")
                 .foregroundColor(.white)
                 .padding(.leading, 20)
             Spacer()
@@ -105,8 +105,8 @@ struct ViewButton: View {
         }) {
             Text("View ")
                 .foregroundColor(.black)
-                .font(.custom("Avenir", size: 20))
-            
+                .font(.system(size: 20, weight: .bold))
+
                 .frame(width: 70, height: 30)
                 .background(
                     LinearGradient(
@@ -133,8 +133,8 @@ struct LogOutButton: View {
         }) {
             Text("Log Out")
                 .foregroundColor(.black)
-                .font(.custom("Avenir", size: 20))
-            
+                .font(.system(size: 20, weight: .bold))
+
                 .frame(width: 150, height: 65)
                 .background(
                     LinearGradient(

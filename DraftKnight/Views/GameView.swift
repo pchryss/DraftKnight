@@ -53,10 +53,10 @@ struct GameView: View {
                 VStack {
                     if !isOptionOneEnabled {
                         if isPlaying {
-                            Text("Current Score: \(String(format: "%.2f", score))")
+                            Text("Current Score: \(String(format: "%.1f", score))")
                                 .foregroundColor(.white)
                         } else {
-                            Text("Final Score: \(String(format: "%.2f", score))")
+                            Text("Final Score: \(String(format: "%.1f", score))")
                                 .foregroundColor(.white)
                         }
                     }
@@ -146,8 +146,8 @@ struct PlayAgainButton: View {
     var body: some View {
         Button(action: action) {
             Text("Play Again")
-                .font(.custom("Avenir", size: 20))
-            
+                .font(.system(size: 20, weight: .bold))
+
                 .foregroundColor(.black)
                 .frame(width: 200, height: 65)
                 .background(
@@ -171,8 +171,8 @@ struct LobbyButton: View {
     var body: some View {
         Button(action: action) {
             Text("Lobby")
-                .font(.custom("Avenir", size: 20))
-            
+                .font(.system(size: 20, weight: .bold))
+
                 .foregroundColor(.black)
                 .frame(width: 150, height: 55)
                 .background(
@@ -242,7 +242,7 @@ struct Player: View {
                 HStack(spacing: 0) {
                     VStack {
                         Text(position)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                             .padding()
                     }
                     .frame(maxWidth: 75, maxHeight: 50)
@@ -321,7 +321,7 @@ struct SelectField: View {
                 }
                 Spacer()
                 VStack {
-                    Text(String(format: "%.2f", player?.points ?? 0))
+                    Text(String(format: "%.1f", player?.points ?? 0))
                         .foregroundColor(.white)
                     Text(String((player?.year ?? 0)))
                         .foregroundColor(.white)

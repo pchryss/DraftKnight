@@ -24,7 +24,7 @@ struct TabBar: View {
 
             }
                 .tabItem {
-                    Label("Start", systemImage: "house.fill")
+                    Label("Play", systemImage: "gamecontroller.fill")
                 }
                 .tag(1)
             

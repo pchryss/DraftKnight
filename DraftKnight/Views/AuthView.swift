@@ -126,7 +126,7 @@ struct ToggleButton: View {
             Text("Sign Up")
                 .opacity(text == "Sign Up" ? 1 : 0)
         }
-        .font(.custom("Avenir", size: 20))
+        .font(.system(size: 20, weight: .bold))
         .foregroundColor(.black)
         .frame(width: 100, height: 60)
         .background(
@@ -158,6 +158,7 @@ struct Input: View {
                 if usingLogin {
                     Text("Forgot Password")
                         .foregroundColor(Color(red: 230 / 255, green: 230 / 255, blue: 230 / 255))
+
                 } else {
                     SecureInputField(placeholder: "Confirm Password", input: $authModel.confirmPassword)
                 }
@@ -177,8 +178,8 @@ struct AuthButton: View {
             usingLogin ? authModel.login() : authModel.signUp()
         } label: {
             Text(usingLogin ? "Log In" : "Create Account")
-                .font(.custom("Avenir", size: 20))
-            
+                .font(.system(size: 20, weight: .bold))
+
                 .foregroundColor(.black)
                 .frame(width: 200, height: 65)
                 .background(

@@ -77,7 +77,7 @@ struct GameSettings: View {
             }
             Text(label)
                 .foregroundColor(.white)
-                .font(.custom("Avenir", size: 20))
+                .font(.system(size: 20, weight: .bold))
         }
     }
 }
@@ -93,8 +93,8 @@ struct StartButton: View {
         }) {
             Text("Start Game")
                 .foregroundColor(.black)
-                .font(.custom("Avenir", size: 20))
-            
+                .font(.system(size: 20, weight: .bold))
+
                 .frame(width: 150, height: 65)
                 .background(
                     LinearGradient(

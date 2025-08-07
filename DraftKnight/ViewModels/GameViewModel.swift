@@ -114,6 +114,8 @@ class GameViewModel: ObservableObject {
             }
         }
     }
+    
+
     func filteredPlayers(searchText: String) -> [PlayerFromDB] {
         if searchText.isEmpty {
             return players
