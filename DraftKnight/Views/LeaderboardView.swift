@@ -5,6 +5,8 @@
 //  Created by Philip Chryssochoos on 8/3/25.
 //
 import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
 
 struct LeaderboardView: View {
 
@@ -22,8 +24,7 @@ struct LeaderboardView: View {
             .ignoresSafeArea()
             
             VStack {
-                Text("Coming soon...")
-                    .foregroundColor(.white)
+                Leaderboard()
             }
         }
     }
@@ -31,4 +32,66 @@ struct LeaderboardView: View {
 
 #Preview {
     LeaderboardView()
+}
+
+struct Leaderboard: View {
+    @State private var topScores: [Double] = Array(repeating: -1, count: 10)
+    @State private var isLoading = true
+    var body: some View {
+        VStack {
+            Text("Weekly Global Top 10")
+                .foregroundColor(.white)
+            if isLoading {
+                ProgressView("Loading...")
+                    .foregroundColor(.white)
+                    .padding()
+            } else {
+                ForEach(0..<10, id: \.self) { index in
+                    Game(rank: index + 1, points: topScores[index])
+                }
+            }
+
+        }
+        .onAppear() {
+            fetchTop10Games { scores in
+                self.topScores = scores
+                self.isLoading = false
+            }
+        }
+    }
+}
+
+func fetchTop10Games(completion: @escaping ([Double]) -> Void) {
+    guard let userID = Auth.auth().currentUser?.uid else {
+        completion([])
+        return
+    }
+    let db = Firestore.firestore()
+    let gamesRef = db.collection("users").document(userID).collection("games")
+    gamesRef
+        .order(by: "score", descending: true)
+        .limit(to: 10)
+        .getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching games: \(error.localizedDescription)")
+                completion(Array(repeating: -1.0, count: 10))
+                return
+            }
+            guard let documents = snapshot?.documents else {
+                completion(Array(repeating: -1.0, count: 10))
+                return
+            }
+            
+            var topScores: [Double] = []
+            for document in documents {
+                if let score = document.data()["score"] as? Double {
+                    topScores.append(score)
+                }
+            }
+            while topScores.count < 10 {
+                topScores.append(-1.0)
+            }
+            
+            completion(topScores)
+        }
 }

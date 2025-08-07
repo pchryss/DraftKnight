@@ -34,12 +34,6 @@ struct ProfileView: View {
         }
     }
 }
-//func fetchPastGames(completion: @escaping ([Game]) -> Void) {
-//    guard let userID = Auth.auth().currentUser?.uid else { return }
-//    let db = Firestore.firestore()
-//    let gamesRef = db.collection("users").document(userID).collection("games")
-//    
-//}
 
 #Preview {
     ProfileView()
@@ -105,7 +99,7 @@ struct ViewButton: View {
         }) {
             Text("View ")
                 .foregroundColor(.black)
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 20))
 
                 .frame(width: 70, height: 30)
                 .background(
