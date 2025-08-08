@@ -35,7 +35,7 @@ struct LeaderboardView: View {
 }
 
 struct Leaderboard: View {
-    @State private var topScores: [Double] = Array(repeating: -1, count: 10)
+    @State private var topScores: [(userID: String, score: Double)] = Array(repeating: ("-1", -1.0), count: 10)
     @State private var isLoading = true
     var body: some View {
         VStack {
@@ -47,13 +47,14 @@ struct Leaderboard: View {
                     .padding()
             } else {
                 ForEach(0..<10, id: \.self) { index in
-                    Game(rank: index + 1, points: topScores[index])
+                    let entry = topScores[index]
+                    Game(rank: index + 1, points: entry.score)
                 }
             }
 
         }
         .onAppear() {
-            fetchTop10Games { scores in
+            fetchWeeklyTop10Games { scores in
                 self.topScores = scores
                 self.isLoading = false
             }
@@ -61,37 +62,55 @@ struct Leaderboard: View {
     }
 }
 
-func fetchTop10Games(completion: @escaping ([Double]) -> Void) {
-    guard let userID = Auth.auth().currentUser?.uid else {
-        completion([])
-        return
-    }
+func fetchWeeklyTop10Games(completion: @escaping ([(userID: String, score: Double)]) -> Void) {
     let db = Firestore.firestore()
-    let gamesRef = db.collection("users").document(userID).collection("games")
-    gamesRef
+    
+    let weekID = getCurrentWeekID()
+    let topScoresRef = db.collection("weekly_leaderboards")
+                         .document(weekID)
+                         .collection("topScores")
+    print(weekID)
+    
+    topScoresRef
         .order(by: "score", descending: true)
         .limit(to: 10)
         .getDocuments { snapshot, error in
             if let error = error {
-                print("Error fetching games: \(error.localizedDescription)")
-                completion(Array(repeating: -1.0, count: 10))
-                return
-            }
-            guard let documents = snapshot?.documents else {
-                completion(Array(repeating: -1.0, count: 10))
+                print("Error fetching weekly leaderboard: \(error.localizedDescription)")
+                completion(Array(repeating: ("-1", -1.0), count: 10))
                 return
             }
             
-            var topScores: [Double] = []
+            guard let documents = snapshot?.documents else {
+                completion(Array(repeating: ("-1", -1.0), count: 10))
+                return
+            }
+            
+            var topScores: [(userID: String, score: Double)] = []
             for document in documents {
-                if let score = document.data()["score"] as? Double {
-                    topScores.append(score)
+                let data = document.data()
+                if let userID = data["userID"] as? String,
+                   let score = data["score"] as? Double {
+                    topScores.append((userID, score))
                 }
             }
+            
             while topScores.count < 10 {
-                topScores.append(-1.0)
+                topScores.append(("-1", -1.0))
             }
             
             completion(topScores)
         }
 }
+
+func getCurrentWeekID() -> String {
+    var calendar = Calendar(identifier: .iso8601)
+    calendar.timeZone = TimeZone(abbreviation: "UTC")!
+    let date = Date()
+    let year = calendar.component(.yearForWeekOfYear, from: date)
+    let weekOfYear = calendar.component(.weekOfYear, from: date)
+
+    return String(format: "%d-W%02d", year, weekOfYear)
+}
+
+

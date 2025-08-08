@@ -414,49 +414,6 @@ func saveGameToFirestore(score: Double) {
                                         
 }
 
-func saveToWeeklyLeaderboard(userID: String, score: Double) {
-    let db = Firestore.firestore()
-    
-    let weekID = getCurrentWeekID( )
-    let leaderboardRef = db.collection("weekly_leaderboards").document(weekID)
-    let topScoresRef = leaderboardRef.collection("topScores")
-    let newScoreData: [String: Any] = [
-        "userID": userID,
-        "score": score,
-        "timestamp": Timestamp(date: Date())
-    ]
-    
-    topScoresRef.addDocument(data: newScoreData) { error in
-        if let error = error {
-            print("Error adding score to weekly leaderboard: \(error.localizedDescription)")
-            return
-        }
-        
-        leaderboardRef.collection("topScores")
-            .order(by: "score", descending: true)
-            .getDocuments { snapshot, error in
-                guard let snapshot = snapshot, error == nil else {
-                    print("Error fetching leaderboard for cleanup: \(error?.localizedDescription ?? "Unknown error")")
-                    return
-                }
-                if snapshot.documents.count > 10 {
-                    let scoresToDelete = snapshot.documents.suffix(from: 10)
-                    for doc in scoresToDelete {
-                        doc.reference.delete()
-                    }
-                }
-            }
-    }
-}
-
-func getCurrentWeekID() -> String {
-    let calendar = Calendar.current
-    let date = Date()
-    let year = calendar.component(.yearForWeekOfYear, from: date)
-    let weekOfYear = calendar.component(.weekOfYear, from: date)
-    return "\(year)-W\(weekOfYear)"
-}
-
 #Preview {
     GameView(
         isOptionOneEnabled: true,
