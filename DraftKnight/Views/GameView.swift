@@ -52,15 +52,21 @@ struct GameView: View {
                 .ignoresSafeArea()
 
                 VStack {
-                    if !isOptionOneEnabled {
-                        if isPlaying {
-                            Text("Current Score: \(String(format: "%.1f", score))")
-                                .foregroundColor(.white)
+                    Group {
+                        if !isOptionOneEnabled || !isPlaying {
+                            if isPlaying {
+                                Text("Current Score: \(String(format: "%.1f", score))")
+                                    .foregroundColor(.white)
+                            } else {
+                                Text("Final Score: \(String(format: "%.1f", score))")
+                                    .foregroundColor(.white)
+                            }
                         } else {
                             Text("Final Score: \(String(format: "%.1f", score))")
-                                .foregroundColor(.white)
+                                .hidden()
                         }
                     }
+                    .frame(height: 20) // reserve vertical space to prevent shifting
                     ForEach(0..<7) { index in
                         let position = ["QB", "RB", "WR", "WR", "TE", "FLEX", "FLEX"][index]
                         Player(player: $selectedPlayers[index], position: position, canSelect: canSelect) {
@@ -309,7 +315,7 @@ struct SelectField: View {
             let firstName = parts?.first.map(String.init) ?? ""
             let lastName = parts?.dropFirst().first.map(String.init) ?? ""
             HStack {
-                Image(model.teams[player!.team]?.logoPath ?? "").resizable()
+                Image(TeamsData.teams[player!.team]?.logoPath ?? "").resizable()
                     .scaledToFit()
                     .frame(width: 40, height: 40)
                     .padding()
@@ -342,7 +348,7 @@ struct SelectField: View {
                 
             }
             .frame(maxWidth: 300, maxHeight: 50)
-            .background(model.teams[player!.team]?.backgroundColor)
+            .background(TeamsData.teams[player!.team]?.backgroundColor)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.white, lineWidth: 2)

@@ -60,7 +60,7 @@ struct Game: View {
                     showGameDetails = true
                 }
                 .fullScreenCover(isPresented: $showGameDetails) {
-                    PrevGameView()
+                    PrevGameView(gameData: game)
                 }
                 .padding(.trailing, 20)
             }

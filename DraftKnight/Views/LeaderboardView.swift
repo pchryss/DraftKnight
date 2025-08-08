@@ -47,24 +47,22 @@ struct LeaderboardViewButton: View {
     var gameData: LeaderboardEntry
 
     var body: some View {
-        NavigationLink(destination: PrevGameView()) {
-            Text("View ")
-                .foregroundColor(.black)
-                .font(.system(size: 20))
+        Text("View ")
+            .foregroundColor(.black)
+            .font(.system(size: 20))
 
-                .frame(width: 70, height: 30)
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color(red: 0xC7 / 255, green: 0xEE / 255, blue: 0xFF / 255),   // #C7EEFF
-                            Color(red: 0x4D / 255, green: 0x6D / 255, blue: 0xE3 / 255)  // #4D6DE3
-                        ]),
-                        startPoint: UnitPoint(x: -2.5, y: -2.5),
-                        endPoint: UnitPoint(x: 2.5, y: 2.5)
-                    )
+            .frame(width: 70, height: 30)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0xC7 / 255, green: 0xEE / 255, blue: 0xFF / 255),   // #C7EEFF
+                        Color(red: 0x4D / 255, green: 0x6D / 255, blue: 0xE3 / 255)  // #4D6DE3
+                    ]),
+                    startPoint: UnitPoint(x: -2.5, y: -2.5),
+                    endPoint: UnitPoint(x: 2.5, y: 2.5)
                 )
-                .cornerRadius(30)
-        }
+            )
+            .cornerRadius(30)
     }
 }
 
