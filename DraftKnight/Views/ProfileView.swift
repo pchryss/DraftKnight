@@ -41,21 +41,28 @@ struct ProfileView: View {
 
 struct Game: View {
     var rank: Int
-    var points: Double
+    var game: GameData
+    @State private var showGameDetails = false
+    
     var body: some View {
         HStack {
-            if points == -1.0 {
+            if game.score == -1.0 {
                 Text("\(rank). NA")
                     .foregroundColor(.white)
                     .padding(.leading, 20)
                 Spacer()
             } else {
-                Text("\(rank). \(points, specifier: "%.1f")")
+                Text("\(rank). \(game.score, specifier: "%.1f")")
                     .foregroundColor(.white)
                     .padding(.leading, 20)
                 Spacer()
-                ViewButton()
-                    .padding(.trailing, 20)
+                ViewButton {
+                    showGameDetails = true
+                }
+                .fullScreenCover(isPresented: $showGameDetails) {
+                    PrevGameView()
+                }
+                .padding(.trailing, 20)
             }
         }
         .frame(maxWidth: 250, maxHeight: 50)
@@ -70,40 +77,50 @@ struct Game: View {
 
 
 
+
 struct History: View {
-    @State private var topScores: [Double] = Array(repeating: -1, count: 5)
+    @State private var topGames: [GameData] = []
     @State private var isLoading = true
+    
     var body: some View {
         VStack {
             Text("Your Best Games")
                 .foregroundColor(.white)
+            
             if isLoading {
                 ProgressView("Loading...")
                     .foregroundColor(.white)
                     .padding()
             } else {
                 ForEach(0..<5, id: \.self) { index in
-                    Game(rank: index + 1, points: topScores[index])
+                    if index < topGames.count {
+                        Game(rank: index + 1, game: topGames[index])
+                    } else {
+                        Game(rank: index + 1, game: GameData(
+                            id: UUID().uuidString,
+                            score: -1.0,
+                            date: Date(),
+                            players: []
+                        ))
+                    }
                 }
             }
-
         }
-        .onAppear() {
-            fetchTop5Games { scores in
-                self.topScores = scores
+        .onAppear {
+            fetchTop5Games { games in
+                self.topGames = games
                 self.isLoading = false
             }
         }
     }
 }
 
+
 struct ViewButton: View {
-    
+    var onTap: () -> Void
 
     var body: some View {
-        Button(action: {
-            print("hello")
-        }) {
+        Button(action: onTap) {
             Text("View ")
                 .foregroundColor(.black)
                 .font(.system(size: 20))
@@ -152,37 +169,77 @@ struct LogOutButton: View {
     }
 }
 
-func fetchTop5Games(completion: @escaping ([Double]) -> Void) {
+struct GameData: Identifiable {
+    var id: String
+    var score: Double
+    var date: Date
+    var players: [PlayerFromDB]
+}
+
+func fetchTop5Games(completion: @escaping ([GameData]) -> Void) {
     guard let userID = Auth.auth().currentUser?.uid else {
         completion([])
         return
     }
     let db = Firestore.firestore()
     let gamesRef = db.collection("users").document(userID).collection("games")
+    
     gamesRef
         .order(by: "score", descending: true)
         .limit(to: 5)
         .getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching games: \(error.localizedDescription)")
-                completion(Array(repeating: -1.0, count: 5))
+                completion([])
                 return
             }
+            
             guard let documents = snapshot?.documents else {
-                completion(Array(repeating: -1.0, count: 5))
+                completion([])
                 return
             }
             
-            var topScores: [Double] = []
+            var topGames: [GameData] = []
+            
             for document in documents {
-                if let score = document.data()["score"] as? Double {
-                    topScores.append(score)
+                let data = document.data()
+                
+                guard let score = data["score"] as? Double,
+                      let timestamp = data["date"] as? Timestamp else {
+                    continue
                 }
-            }
-            while topScores.count < 5 {
-                topScores.append(-1.0)
+                
+                let playersData = data["players"] as? [[String: Any]] ?? []
+                
+                let players = playersData.compactMap { dict -> PlayerFromDB? in
+                    guard let name = dict["name"] as? String,
+                          let team = dict["team"] as? String,
+                          let position = dict["position"] as? String,
+                          let points = dict["points"] as? Double,
+                          let year = dict["year"] as? Int else {
+                        return nil
+                    }
+                    return PlayerFromDB(
+                        id: nil,
+                        name: name,
+                        team: team,
+                        position: position,
+                        points: points,
+                        year: year
+                    )
+                }
+                
+                let game = GameData(
+                    id: document.documentID,
+                    score: score,
+                    date: timestamp.dateValue(),
+                    players: players
+                )
+                
+                topGames.append(game)
             }
             
-            completion(topScores)
+            completion(topGames)
         }
 }
+

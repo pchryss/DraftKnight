@@ -5,41 +5,49 @@ admin.initializeApp();
 const db = admin.firestore();
 
 
-export const updateWeeklyLeaderboard = onDocumentCreated("users/{userId}/games/{gameId}", async (event) => {
-  console.log("starting")
+export const updateWeeklyLeaderboard = onDocumentCreated(
+  "users/{userId}/games/{gameId}",
+  async (event) => {
+    console.log("starting");
 
-  const newGame = event.data?.data();
-  if (!newGame || typeof newGame.score !== "number") {
-    console.log("No score found in new game document");
-    return;
-  }
+    const newGame = event.data?.data();
+    if (!newGame || typeof newGame.score !== "number") {
+      console.log("No score found in new game document");
+      return;
+    }
 
-  const score = newGame.score;
-  const userId = event.params.userId;
-    const timestamp: admin.firestore.Timestamp = newGame.data || admin.firestore.Timestamp.now();
+    const score = newGame.score;
+    const players = newGame.players || []; // <-- pull players from game document
+    const userId = event.params.userId;
+    const timestamp: admin.firestore.Timestamp =
+      newGame.date || admin.firestore.Timestamp.now();
 
     const weekID = getCurrentWeekID(timestamp);
-  const leaderboardRef = db.collection("weekly_leaderboards").doc(weekID);
-  const topScoresRef = leaderboardRef.collection("topScores");
+    const leaderboardRef = db.collection("weekly_leaderboards").doc(weekID);
+    const topScoresRef = leaderboardRef.collection("topScores");
 
-  await topScoresRef.add({
-    userId,
-    score,
-    timestamp,
-  });
+    await topScoresRef.add({
+      userId,
+      score,
+      players,
+      timestamp,
+    });
 
-  const snapshot = await topScoresRef.orderBy("score", "desc").get();
+    const snapshot = await topScoresRef.orderBy("score", "desc").get();
 
-  if (snapshot.size > 10) {
-    const docsToDelete = snapshot.docs.slice(10);
-    const batch = db.batch();
-    docsToDelete.forEach((doc) => batch.delete(doc.ref));
-    await batch.commit();
-    console.log(`Cleaned up ${docsToDelete.length} scores from leaderboard`);
+    if (snapshot.size > 10) {
+      const docsToDelete = snapshot.docs.slice(10);
+      const batch = db.batch();
+      docsToDelete.forEach((doc) => batch.delete(doc.ref));
+      await batch.commit();
+      console.log(`Cleaned up ${docsToDelete.length} scores from leaderboard`);
+    }
+
+    console.log(
+      `Updated weekly leaderboard for week ${weekID} with score ${score}`
+    );
   }
-
-  console.log(`Updated weekly leaderboard for week ${weekID} with score ${score}`);
-});
+);
 
 function getCurrentWeekID(timestamp: admin.firestore.Timestamp): string {
   const date = timestamp.toDate();

@@ -27,8 +27,9 @@ struct TabBar: View {
                     Label("Play", systemImage: "gamecontroller.fill")
                 }
                 .tag(1)
-            
-            ProfileView()
+            NavigationStack {
+                ProfileView()
+            }
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }

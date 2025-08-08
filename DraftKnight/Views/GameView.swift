@@ -141,7 +141,7 @@ struct GameView: View {
         playersPicked += 1
         if playersPicked == 7 {
             isPlaying = false
-            saveGameToFirestore(score: score)
+            saveGameToFirestore(score: score, selectedPlayers: selectedPlayers.compactMap { $0 })
         } else {
             canSelect = false
             await randomize()
@@ -402,15 +402,27 @@ struct PickPlayer: View {
     }
 }
 
-func saveGameToFirestore(score: Double) {
+func saveGameToFirestore(score: Double, selectedPlayers: [PlayerFromDB]) {
     guard let userID = Auth.auth().currentUser?.uid else {
         return
     }
     let db = Firestore.firestore()
     let gamesRef = db.collection("users").document(userID).collection("games")
+    
+    let playerData: [[String: Any]] = selectedPlayers.map { player in
+        return [
+            "name": player.name,
+            "team": player.team,
+            "position": player.position,
+            "points": player.points,
+            "year": player.year
+        ]
+    }
+    
     let gameData: [String: Any] = [
         "score": score,
-        "data": Timestamp(date: Date())
+        "date": Timestamp(date: Date()),
+        "players": playerData
     ]
     gamesRef.addDocument(data: gameData) { error in
         if let error = error {
