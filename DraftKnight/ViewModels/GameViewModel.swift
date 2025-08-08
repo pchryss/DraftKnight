@@ -1,23 +1,16 @@
-//
-//  CounterViewModel.swift
-//  DraftKnight
-//
-//  Created by Philip Chryssochoos on 6/23/25.
-//
 import Foundation
 import Combine
 import SwiftUI
-import Foundation
 import FirebaseFirestore
-// create a class of the same name by convention
-// ObservableObject tells the UI to re-render the view if anything changes
 
+@MainActor
 class GameViewModel: ObservableObject {
-    // flags the variable. If it changes, the view is re-rendered
-    
     @Published var selectedTeam: Team? = nil
     @Published var players: [PlayerFromDB] = []
+    @Published var allPlayersForTeam: [PlayerFromDB] = []
+    
     private var db = Firestore.firestore()
+    
     var teams: [String: Team] = [
         "ARI": Team(name: "Arizona Cardinals", logoPath: "cardinals", backgroundColor: Color(red: 151/255, green: 35/255, blue: 63/255), db: "ARI"),
         "ATL": Team(name: "Atlanta Falcons", logoPath: "falcons", backgroundColor: Color(red: 167/255, green: 25/255, blue: 48/255), db: "ATL"),
@@ -52,77 +45,55 @@ class GameViewModel: ObservableObject {
         "TEN": Team(name: "Tennessee Titans", logoPath: "titans", backgroundColor: Color(red: 12/255, green: 35/255, blue: 64/255), db: "TEN"),
         "WAS": Team(name: "Washington Commanders", logoPath: "commanders", backgroundColor: Color(red: 90/255, green: 20/255, blue: 20/255), db: "WAS")
     ]
+    
+    // Randomize team selection with small delay
     func randomizeTeam() async {
         for _ in 1...10 {
             selectedTeam = teams.values.randomElement()
             try? await Task.sleep(nanoseconds: 100_000_000)
-
         }
     }
-    func fetchPlayers(team: String, position: String) {
-        let baseQuery = db.collection("teams").document(team).collection("players")
-        if position != "FLEX" {
-            
-            baseQuery
-                .whereField("position", isEqualTo: position)
-                .getDocuments { snapshot, error in
-                    if let error = error {
-                        print("Firestore error: \(error.localizedDescription)")
-                        return
-                    }
-
-                    guard let docs = snapshot?.documents else {
-                        print("No documents found (snapshot was nil)")
-                        return
-                    }
-
-
-                    let decoded = docs.compactMap { doc -> PlayerFromDB? in
-                        do {
-                            return try doc.data(as: PlayerFromDB.self)
-                        } catch {
-                            print("Decoding failed for doc \(doc.documentID): \(error)")
-                            return nil
-                        }
-                    }
-
-                    DispatchQueue.main.async {
-                        self.players = decoded
-                    }
+    
+    // Fetch all players for the selected team
+    func fetchAllPlayersForTeam(team: String) async {
+        do {
+            let snapshot = try await db.collection("teams").document(team).collection("players").getDocuments()
+            let decoded = snapshot.documents.compactMap { doc -> PlayerFromDB? in
+                do {
+                    return try doc.data(as: PlayerFromDB.self)
+                } catch {
+                    print("Decoding failed for doc \(doc.documentID): \(error)")
+                    return nil
                 }
-        } else {
-            // FLEX: RB, WR, TE combined
-            let positions = ["RB", "WR", "TE"]
-            let group = DispatchGroup()
-            var flexPlayers: [PlayerFromDB] = []
-
-            for pos in positions {
-                group.enter()
-                baseQuery
-                    .whereField("position", isEqualTo: pos)
-                    .getDocuments { snapshot, error in
-                        if let docs = snapshot?.documents {
-                            let decoded = docs.compactMap { try? $0.data(as: PlayerFromDB.self) }
-                            flexPlayers.append(contentsOf: decoded)
-                        }
-                        group.leave()
-                    }
             }
-
-            group.notify(queue: .main) {
-                self.players = flexPlayers
+            await MainActor.run {
+                self.allPlayersForTeam = decoded
+                self.players = []
+            }
+        } catch {
+            print("Error fetching all players for team \(team): \(error)")
+            await MainActor.run {
+                self.allPlayersForTeam = []
+                self.players = []
             }
         }
     }
     
-
+    // Filter players locally by position
+    func filterPlayers(position: String) {
+        if position == "FLEX" {
+            self.players = allPlayersForTeam.filter { ["RB", "WR", "TE"].contains($0.position) }
+        } else {
+            self.players = allPlayersForTeam.filter { $0.position == position }
+        }
+    }
+    
+    // Filter players locally with optional search text
     func filteredPlayers(searchText: String) -> [PlayerFromDB] {
         if searchText.isEmpty {
             return players
         } else {
-            return players.filter {
-                $0.name.localizedCaseInsensitiveContains(searchText)
-            }
+            return players.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
         }
     }
 }

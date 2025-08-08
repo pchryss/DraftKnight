@@ -28,13 +28,14 @@ struct GameView: View {
     @State var canSelect: Bool = false
     @State var score: Double = 0
     @State var selectedPlayers: [PlayerFromDB?] = [nil, nil, nil, nil, nil, nil, nil]
-    
+
     var isOptionOneEnabled: Bool = false
     var onPlayAgain: () -> Void
     var onGoToLobby: () -> Void
     @State var isPlaying: Bool = true
     @State var playersPicked = 0
     @State private var resetTrigger = UUID()
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -71,7 +72,7 @@ struct GameView: View {
                             DraftingFrom(canSelect: $canSelect)
                         } else {
                             GameOver(onPlayAgain: onPlayAgain,
-                            onGoToLobby: onGoToLobby)
+                                     onGoToLobby: onGoToLobby)
                         }
                     }
                     .frame(height: 200)
@@ -103,19 +104,29 @@ struct GameView: View {
                 }
             }
             .onAppear {
-                Task { await randomize() }
+                Task {
+                    await randomize()
+                }
             }
         }
     }
 
     func randomize() async {
         await model.randomizeTeam()
+        if let team = model.selectedTeam?.db {
+            await model.fetchAllPlayersForTeam(team: team)
+        }
         canSelect = true
     }
 
     func openPopup(for position: String, player: Binding<PlayerFromDB?>) {
-        activePosition = position
-        activePlayer = player
+        Task {
+            await MainActor.run {
+                model.filterPlayers(position: position)
+                activePosition = position
+                activePlayer = player
+            }
+        }
     }
 
     func closePopup() {
@@ -135,7 +146,6 @@ struct GameView: View {
             canSelect = false
             await randomize()
         }
-
     }
 }
 
@@ -358,6 +368,7 @@ struct PickPlayer: View {
     var body: some View {
         VStack {
             Text("Drafting From: \(team)")
+                .foregroundColor(.black)
             TextField("Search \(position)...", text: $searchText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .focused($isFocused) // link focus state
@@ -387,9 +398,7 @@ struct PickPlayer: View {
             lineWidth: 3)
         )
         .padding()
-        .onAppear {
-            model.fetchPlayers(team: team, position: position)
-        }
+        .preferredColorScheme(.light)
     }
 }
 

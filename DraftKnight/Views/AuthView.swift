@@ -64,12 +64,12 @@ struct InputField: View {
     var placeholder: String
     @Binding var input: String
     var body: some View {
-        TextField(placeholder, text: $input)
+        TextField("", text: $input, prompt: Text(placeholder).foregroundColor(.gray))
             .foregroundColor(.black)
             .padding(.leading, 20)
             .background(
                 RoundedRectangle(cornerRadius: 40)
-                    .fill(Color(red: 230 / 255, green: 230 / 255, blue: 230 / 255))
+                    .fill(Color(red: 230/255, green: 230/255, blue: 230/255))
                     .frame(width: 325, height: 65)
             )
             .frame(width: 325, height: 65)
@@ -80,12 +80,12 @@ struct SecureInputField: View {
     var placeholder: String
     @Binding var input: String
     var body: some View {
-        SecureField(placeholder, text: $input)
+        SecureField("", text: $input, prompt: Text(placeholder).foregroundColor(.gray))
             .foregroundColor(.black)
             .padding(.leading, 20)
             .background(
                 RoundedRectangle(cornerRadius: 40)
-                    .fill(Color(red: 230 / 255, green: 230 / 255, blue: 230 / 255))
+                    .fill(Color(red: 230/255, green: 230/255, blue: 230/255))
                     .frame(width: 325, height: 65)
             )
             .frame(width: 325, height: 65)
