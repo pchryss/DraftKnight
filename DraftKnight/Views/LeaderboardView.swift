@@ -69,7 +69,6 @@ func fetchWeeklyTop10Games(completion: @escaping ([(userID: String, score: Doubl
     let topScoresRef = db.collection("weekly_leaderboards")
                          .document(weekID)
                          .collection("topScores")
-    print(weekID)
     
     topScoresRef
         .order(by: "score", descending: true)
@@ -85,20 +84,17 @@ func fetchWeeklyTop10Games(completion: @escaping ([(userID: String, score: Doubl
                 completion(Array(repeating: ("-1", -1.0), count: 10))
                 return
             }
-            
             var topScores: [(userID: String, score: Double)] = []
             for document in documents {
                 let data = document.data()
-                if let userID = data["userID"] as? String,
+                if let userID = data["userId"] as? String,
                    let score = data["score"] as? Double {
                     topScores.append((userID, score))
                 }
             }
-            
             while topScores.count < 10 {
                 topScores.append(("-1", -1.0))
             }
-            
             completion(topScores)
         }
 }
