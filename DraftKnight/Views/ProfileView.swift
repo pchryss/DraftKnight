@@ -44,12 +44,19 @@ struct Game: View {
     var points: Double
     var body: some View {
         HStack {
-            Text("\(rank). \(points, specifier: "%.1f")")
-                .foregroundColor(.white)
-                .padding(.leading, 20)
-            Spacer()
-            ViewButton()
-                .padding(.trailing, 20)
+            if points == -1.0 {
+                Text("\(rank). NA")
+                    .foregroundColor(.white)
+                    .padding(.leading, 20)
+                Spacer()
+            } else {
+                Text("\(rank). \(points, specifier: "%.1f")")
+                    .foregroundColor(.white)
+                    .padding(.leading, 20)
+                Spacer()
+                ViewButton()
+                    .padding(.trailing, 20)
+            }
         }
         .frame(maxWidth: 250, maxHeight: 50)
         .background(Color.white.opacity(0.1))
