@@ -37,6 +37,7 @@ struct LeaderboardView: View {
 struct LeaderboardEntry: Identifiable {
     var id: String
     var userID: String
+    var username: String
     var score: Double
     var timestamp: Date
     var players: [PlayerFromDB]
@@ -105,7 +106,7 @@ struct LeaderboardGame: View {
 
 struct Leaderboard: View {
     @State private var topScores: [LeaderboardEntry] = Array(repeating:
-        LeaderboardEntry(id: UUID().uuidString, userID: "-1", score: -1.0, timestamp: Date(), players: []),
+                                                                LeaderboardEntry(id: UUID().uuidString, userID: "-1", username: "", score: -1.0, timestamp: Date(), players: []),
         count: 10
     )
     @State private var isLoading = true
@@ -127,6 +128,7 @@ struct Leaderboard: View {
                         LeaderboardGame(rank: index + 1, game: LeaderboardEntry(
                             id: UUID().uuidString,
                             userID: "-1",
+                            username: "",
                             score: -1.0,
                             timestamp: Date(),
                             players: []
@@ -159,7 +161,7 @@ func fetchWeeklyTop10Games(completion: @escaping ([LeaderboardEntry]) -> Void) {
             if let error = error {
                 print("Error fetching weekly leaderboard: \(error.localizedDescription)")
                 completion(Array(repeating:
-                    LeaderboardEntry(id: UUID().uuidString, userID: "-1", score: -1.0, timestamp: Date(), players: []),
+                    LeaderboardEntry(id: UUID().uuidString, userID: "-1", username: "Unknown", score: -1.0, timestamp: Date(), players: []),
                     count: 10
                 ))
                 return
@@ -167,13 +169,14 @@ func fetchWeeklyTop10Games(completion: @escaping ([LeaderboardEntry]) -> Void) {
             
             guard let documents = snapshot?.documents else {
                 completion(Array(repeating:
-                    LeaderboardEntry(id: UUID().uuidString, userID: "-1", score: -1.0, timestamp: Date(), players: []),
+                    LeaderboardEntry(id: UUID().uuidString, userID: "-1", username: "Unknown", score: -1.0, timestamp: Date(), players: []),
                     count: 10
                 ))
                 return
             }
             
             var topScores: [LeaderboardEntry] = []
+            let group = DispatchGroup()
             
             for document in documents {
                 let data = document.data()
@@ -185,7 +188,6 @@ func fetchWeeklyTop10Games(completion: @escaping ([LeaderboardEntry]) -> Void) {
                 }
                 
                 let playersData = data["players"] as? [[String: Any]] ?? []
-                
                 let players = playersData.compactMap { dict -> PlayerFromDB? in
                     guard let name = dict["name"] as? String,
                           let team = dict["team"] as? String,
@@ -197,28 +199,51 @@ func fetchWeeklyTop10Games(completion: @escaping ([LeaderboardEntry]) -> Void) {
                     return PlayerFromDB(id: nil, name: name, team: team, position: position, points: points, year: year)
                 }
                 
-                topScores.append(LeaderboardEntry(
-                    id: document.documentID,
-                    userID: userID,
-                    score: score,
-                    timestamp: timestamp.dateValue(),
-                    players: players
-                ))
+                group.enter()
+                db.collection("users").document(userID).getDocument { userSnap, error in
+                    let username: String
+                    if let data = userSnap?.data(), let name = data["username"] as? String {
+                        username = name
+                    } else {
+                        username = "Unknown"
+                    }
+                    
+                    topScores.append(LeaderboardEntry(
+                        id: document.documentID,
+                        userID: userID,
+                        username: username,
+                        score: score,
+                        timestamp: timestamp.dateValue(),
+                        players: players
+                    ))
+                    
+                    group.leave()
+                }
             }
             
-            while topScores.count < 10 {
-                topScores.append(LeaderboardEntry(
-                    id: UUID().uuidString,
-                    userID: "-1",
-                    score: -1.0,
-                    timestamp: Date(),
-                    players: []
-                ))
+            group.notify(queue: .main) {
+                topScores.sort {
+                    if $0.score != $1.score { return $0.score > $1.score }
+                    return $0.timestamp < $1.timestamp
+                }
+                
+                while topScores.count < 10 {
+                    topScores.append(LeaderboardEntry(
+                        id: UUID().uuidString,
+                        userID: "-1",
+                        username: "Unknown",
+                        score: -1.0,
+                        timestamp: Date(),
+                        players: []
+                    ))
+                }
+                
+                completion(topScores)
             }
-            
-            completion(topScores)
         }
 }
+
+
 
 
 func getCurrentWeekID() -> String {
