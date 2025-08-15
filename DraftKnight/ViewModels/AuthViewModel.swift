@@ -66,29 +66,56 @@ class AuthViewModel: ObservableObject {
             return
         }
         
+        let usernamePattern = "^[a-zA-Z0-9_]{3,20}$"
+        let usernamePredicate = NSPredicate(format: "SELF MATCHES %@", usernamePattern)
+        guard usernamePredicate.evaluate(with: username) else {
+            errorMessage = "Username must be 3-20 characters and contain only letters, numbers, or underscores."
+            return
+        }
+        
         isLoading = true
         errorMessage = nil
         
-        Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
+        let db = Firestore.firestore()
+        
+        db.collection("users").whereField("username", isEqualTo: username).getDocuments { [weak self] snapshot, error in
             DispatchQueue.main.async {
-                self?.isLoading = false
+                guard let self = self else { return }
+                
                 if let error = error {
-                    self?.errorMessage = error.localizedDescription
-                } else if let user = result?.user {
-                    // Save extra user info in Firestore
-                    let db = Firestore.firestore()
-                    db.collection("users").document(user.uid).setData([
-                        "username": self?.username ?? "",
-                        "email": self?.email ?? ""
-                    ]) { error in
+                    self.isLoading = false
+                    self.errorMessage = "Failed to check username: \(error.localizedDescription)"
+                    return
+                }
+                
+                if let snapshot = snapshot, !snapshot.documents.isEmpty {
+                    self.isLoading = false
+                    self.errorMessage = "Username already taken. Please choose another."
+                    return
+                }
+                
+                // 5. Create the user since username is valid and unique
+                Auth.auth().createUser(withEmail: self.email, password: self.password) { result, error in
+                    DispatchQueue.main.async {
+                        self.isLoading = false
                         if let error = error {
-                            print("Failed to save user data: \(error.localizedDescription)")
-                        } else {
-                            print("User data saved successfully!")
+                            self.errorMessage = error.localizedDescription
+                        } else if let user = result?.user {
+                            // Save user data in Firestore
+                            db.collection("users").document(user.uid).setData([
+                                "username": self.username,
+                                "email": self.email
+                            ]) { error in
+                                if let error = error {
+                                    print("Failed to save user data: \(error.localizedDescription)")
+                                } else {
+                                    print("User data saved successfully!")
+                                }
+                            }
+                            self.isAuthenticated = true
+                            self.fetchedUsername = self.username
                         }
                     }
-                    self?.isAuthenticated = true
-                    self?.fetchedUsername = self?.username ?? ""
                 }
             }
         }
