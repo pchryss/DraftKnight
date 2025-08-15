@@ -9,6 +9,8 @@
 import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
+import FirebaseCore
+import FirebaseFunctions
 
 // Views are almost always defined using structs instead of classes
 //      They are lightweight, and be recreated easily, and have value semantics (for diffing)
@@ -147,7 +149,7 @@ struct GameView: View {
         playersPicked += 1
         if playersPicked == 7 {
             isPlaying = false
-            saveGameToFirestore(score: score, selectedPlayers: selectedPlayers.compactMap { $0 })
+            saveGameToUserDocument(score: score, selectedPlayers: selectedPlayers.compactMap { $0 })
         } else {
             canSelect = false
             await randomize()
@@ -162,7 +164,7 @@ struct PlayAgainButton: View {
     var body: some View {
         Button(action: action) {
             Text("Play Again")
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 20, weight: .semibold))
 
                 .foregroundColor(.black)
                 .frame(width: 200, height: 65)
@@ -187,7 +189,7 @@ struct LobbyButton: View {
     var body: some View {
         Button(action: action) {
             Text("Lobby")
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 20, weight: .semibold))
 
                 .foregroundColor(.black)
                 .frame(width: 150, height: 55)
@@ -408,15 +410,16 @@ struct PickPlayer: View {
     }
 }
 
-func saveGameToFirestore(score: Double, selectedPlayers: [PlayerFromDB]) {
-    guard let userID = Auth.auth().currentUser?.uid else {
-        return
-    }
+
+
+func saveGameToUserDocument(score: Double, selectedPlayers: [PlayerFromDB]) {
+    guard let userID = Auth.auth().currentUser?.uid else { return }
     let db = Firestore.firestore()
-    let gamesRef = db.collection("users").document(userID).collection("games")
+    let userRef = db.collection("users").document(userID)
     
+    // Convert selected players to dictionary
     let playerData: [[String: Any]] = selectedPlayers.map { player in
-        return [
+        [
             "name": player.name,
             "team": player.team,
             "position": player.position,
@@ -430,16 +433,44 @@ func saveGameToFirestore(score: Double, selectedPlayers: [PlayerFromDB]) {
         "date": Timestamp(date: Date()),
         "players": playerData
     ]
-    gamesRef.addDocument(data: gameData) { error in
+    
+    userRef.updateData([
+        "games": FieldValue.arrayUnion([gameData])
+    ]) { error in
         if let error = error {
-            print("Error saving game: \(error.localizedDescription)")
+            if (error as NSError).code == FirestoreErrorCode.notFound.rawValue {
+                userRef.setData(["games": [gameData]], merge: true) { err in
+                    if let err = err {
+                        print("Error creating games array: \(err.localizedDescription)")
+                    } else {
+                        print("Games array created and game added!")
+                    }
+                }
+            } else {
+                print("Error appending game: \(error.localizedDescription)")
+            }
         } else {
-            print("Game saved successfully")
-
+            print("Game added successfully to user document!")
+            let functions = Functions.functions()
+            functions.httpsCallable("addGameToLeaderboard").call([
+                "userId": userID,
+                "game": [
+                    "score": score,
+                    "date": ISO8601DateFormatter().string(from: Date()),
+                    "players": playerData
+                ]
+            ]) { result, error in
+                if let error = error {
+                        print("Callable error (might be non-fatal):", error.localizedDescription)
+                    }
+                    if let data = result?.data as? [String: Any] {
+                        print("Callable returned:", data)
+                    }
+            }
         }
     }
-                                        
 }
+
 
 #Preview {
     GameView(

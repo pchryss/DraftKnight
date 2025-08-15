@@ -35,9 +35,21 @@ struct AuthView: View {
                 
                 VStack {
                     Logo().padding()
-                    Input(usingLogin: $usingLogin)
-                        .environmentObject(authModel)
-                        .padding()
+                    Toggle(usingLogin: $usingLogin)
+                    ZStack {
+                        LoginInput(usingLogin: $usingLogin)
+                            .environmentObject(authModel)
+                            .opacity(usingLogin ? 1 : 0)
+                            .disabled(!usingLogin)
+                        
+                        SignupInput(usingLogin: $usingLogin)
+                            .environmentObject(authModel)
+                            .opacity(usingLogin ? 0 : 1)
+                            .disabled(usingLogin)
+                    }
+                    .frame(height: 300)
+                    .padding()
+                    .animation(.easeInOut(duration: 0.3), value: usingLogin)
                     if let errorMessage = authModel.errorMessage {
                         Text(errorMessage)
                             .foregroundColor(.red)
@@ -126,7 +138,7 @@ struct ToggleButton: View {
             Text("Sign Up")
                 .opacity(text == "Sign Up" ? 1 : 0)
         }
-        .font(.system(size: 20, weight: .bold))
+        .font(.system(size: 20, weight: .semibold))
         .foregroundColor(.black)
         .frame(width: 100, height: 60)
         .background(
@@ -143,29 +155,37 @@ struct ToggleButton: View {
         
     }
 }
-
-struct Input: View {
+struct LoginInput: View {
     @EnvironmentObject var authModel: AuthViewModel
 
     @Binding var usingLogin: Bool
 
     var body: some View {
         VStack {
-            Toggle(usingLogin: $usingLogin)
             InputField(placeholder: "Email", input: $authModel.email)
             SecureInputField(placeholder: "Password", input: $authModel.password)
-            Group {
-                if usingLogin {
-                    Text("Forgot Password")
-                        .foregroundColor(Color(red: 230 / 255, green: 230 / 255, blue: 230 / 255))
-
-                } else {
-                    SecureInputField(placeholder: "Confirm Password", input: $authModel.confirmPassword)
-                }
-            }
-            .frame(height: 65)
+            Text("Forgot Password")
+                .foregroundColor(Color(red: 230 / 255, green: 230 / 255, blue: 230 / 255))
+                .padding()
             .animation(.easeInOut(duration: 1), value: usingLogin)
+            Spacer()
+        }
+    }
+}
 
+struct SignupInput: View {
+    @EnvironmentObject var authModel: AuthViewModel
+
+    @Binding var usingLogin: Bool
+
+    var body: some View {
+        VStack {
+            InputField(placeholder: "Username", input: $authModel.username)
+            InputField(placeholder: "Email", input: $authModel.email)
+            SecureInputField(placeholder: "Password", input: $authModel.password)
+            SecureInputField(placeholder: "Confirm Password", input: $authModel.confirmPassword)
+            .animation(.easeInOut(duration: 1), value: usingLogin)
+            Spacer()
         }
     }
 }
@@ -178,7 +198,7 @@ struct AuthButton: View {
             usingLogin ? authModel.login() : authModel.signUp()
         } label: {
             Text(usingLogin ? "Log In" : "Create Account")
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 20, weight: .semibold))
 
                 .foregroundColor(.black)
                 .frame(width: 200, height: 65)

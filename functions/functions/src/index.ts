@@ -8,7 +8,7 @@
  */
 
 import {setGlobalOptions} from "firebase-functions";
-import {updateWeeklyLeaderboard} from "./leaderboard";
+import {addGameToLeaderboard} from "./leaderboard";
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
@@ -25,7 +25,7 @@ import {updateWeeklyLeaderboard} from "./leaderboard";
 // this will be the maximum concurrent request count.
 setGlobalOptions({maxInstances: 10});
 
-export {updateWeeklyLeaderboard};
+export {addGameToLeaderboard};
 
 // export const helloWorld = onRequest((request, response) => {
 //   logger.info("Hello logs!", {structuredData: true});

@@ -77,7 +77,7 @@ struct GameSettings: View {
             }
             Text(label)
                 .foregroundColor(.white)
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 20, weight: .semibold))
         }
     }
 }
@@ -93,7 +93,7 @@ struct StartButton: View {
         }) {
             Text("Start Game")
                 .foregroundColor(.black)
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 20, weight: .semibold))
 
                 .frame(width: 150, height: 65)
                 .background(

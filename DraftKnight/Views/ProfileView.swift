@@ -151,7 +151,7 @@ struct LogOutButton: View {
         }) {
             Text("Log Out")
                 .foregroundColor(.black)
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 20, weight: .semibold))
 
                 .frame(width: 150, height: 65)
                 .background(
@@ -181,65 +181,51 @@ func fetchTop5Games(completion: @escaping ([GameData]) -> Void) {
         completion([])
         return
     }
-    let db = Firestore.firestore()
-    let gamesRef = db.collection("users").document(userID).collection("games")
     
-    gamesRef
-        .order(by: "score", descending: true)
-        .limit(to: 5)
-        .getDocuments { snapshot, error in
-            if let error = error {
-                print("Error fetching games: \(error.localizedDescription)")
-                completion([])
-                return
-            }
-            
-            guard let documents = snapshot?.documents else {
-                completion([])
-                return
-            }
-            
-            var topGames: [GameData] = []
-            
-            for document in documents {
-                let data = document.data()
-                
-                guard let score = data["score"] as? Double,
-                      let timestamp = data["date"] as? Timestamp else {
-                    continue
-                }
-                
-                let playersData = data["players"] as? [[String: Any]] ?? []
-                
-                let players = playersData.compactMap { dict -> PlayerFromDB? in
-                    guard let name = dict["name"] as? String,
-                          let team = dict["team"] as? String,
-                          let position = dict["position"] as? String,
-                          let points = dict["points"] as? Double,
-                          let year = dict["year"] as? Int else {
-                        return nil
-                    }
-                    return PlayerFromDB(
-                        id: nil,
-                        name: name,
-                        team: team,
-                        position: position,
-                        points: points,
-                        year: year
-                    )
-                }
-                
-                let game = GameData(
-                    id: document.documentID,
-                    score: score,
-                    date: timestamp.dateValue(),
-                    players: players
-                )
-                
-                topGames.append(game)
-            }
-            
-            completion(topGames)
+    let db = Firestore.firestore()
+    let userRef = db.collection("users").document(userID)
+    
+    userRef.getDocument { snapshot, error in
+        if let error = error {
+            print("Error fetching user document: \(error.localizedDescription)")
+            completion([])
+            return
         }
+        
+        guard let data = snapshot?.data(),
+              let gamesArray = data["games"] as? [[String: Any]] else {
+            completion([])
+            return
+        }
+        
+        let allGames: [GameData] = gamesArray.compactMap { gameDict in
+            guard let score = gameDict["score"] as? Double,
+                  let timestamp = gameDict["date"] as? Timestamp else {
+                return nil
+            }
+            
+            let playersData = gameDict["players"] as? [[String: Any]] ?? []
+            let players: [PlayerFromDB] = playersData.compactMap { dict in
+                guard let name = dict["name"] as? String,
+                      let team = dict["team"] as? String,
+                      let position = dict["position"] as? String,
+                      let points = dict["points"] as? Double,
+                      let year = dict["year"] as? Int else {
+                    return nil
+                }
+                return PlayerFromDB(id: nil, name: name, team: team, position: position, points: points, year: year)
+            }
+            
+            return GameData(
+                id: userID,
+                score: score,
+                date: timestamp.dateValue(),
+                players: players
+            )
+        }
+        
+        let top5 = allGames.sorted { $0.score > $1.score }.prefix(5)
+        
+        completion(Array(top5))
+    }
 }
-

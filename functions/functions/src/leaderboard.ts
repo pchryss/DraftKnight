@@ -1,26 +1,37 @@
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
+import { onCall } from "firebase-functions/v2/https";
+
 
 admin.initializeApp();
 const db = admin.firestore();
 
+interface Player {
+  name: string;
+  points: number;
+  position: string;
+  team: string;
+  year: number;
+}
 
-export const updateWeeklyLeaderboard = onDocumentCreated(
-  "users/{userId}/games/{gameId}",
-  async (event) => {
-    console.log("starting");
+interface Game {
+  score: number;
+  players: Player[]; 
+  date: admin.firestore.Timestamp;
+}
 
-    const newGame = event.data?.data();
-    if (!newGame || typeof newGame.score !== "number") {
-      console.log("No score found in new game document");
-      return;
+export const addGameToLeaderboard = onCall(async (request) => {
+  try {
+    const { userId, game } = request.data as { userId: string; game: Game };
+    if (!userId || !game || !game.players.length) {
+      return { success: false, error: "Invalid input" };
     }
 
-    const score = newGame.score;
-    const players = newGame.players || []; // <-- pull players from game document
-    const userId = event.params.userId;
-    const timestamp: admin.firestore.Timestamp =
-      newGame.date || admin.firestore.Timestamp.now();
+    let timestamp: admin.firestore.Timestamp;
+    if (typeof game.date === "string") {
+      timestamp = admin.firestore.Timestamp.fromDate(new Date(game.date));
+    } else {
+      timestamp = game.date;
+    }
 
     const weekID = getCurrentWeekID(timestamp);
     const leaderboardRef = db.collection("weekly_leaderboards").doc(weekID);
@@ -28,26 +39,25 @@ export const updateWeeklyLeaderboard = onDocumentCreated(
 
     await topScoresRef.add({
       userId,
-      score,
-      players,
-      timestamp,
+      score: game.score,
+      players: game.players,
+      timestamp
     });
 
-    const snapshot = await topScoresRef.orderBy("score", "desc").get();
-
+    const snapshot = await topScoresRef.orderBy("score", "desc").orderBy("timestamp", "asc").get();
     if (snapshot.size > 10) {
-      const docsToDelete = snapshot.docs.slice(10);
       const batch = db.batch();
-      docsToDelete.forEach((doc) => batch.delete(doc.ref));
+      snapshot.docs.slice(10).forEach(doc => batch.delete(doc.ref));
       await batch.commit();
-      console.log(`Cleaned up ${docsToDelete.length} scores from leaderboard`);
     }
 
-    console.log(
-      `Updated weekly leaderboard for week ${weekID} with score ${score}`
-    );
+    return { success: true };
+  } catch (err) {
+    console.error("Error in addGameToLeaderboard:", err);
+    return { success: false, error: (err as Error).message };
   }
-);
+});
+
 
 function getCurrentWeekID(timestamp: admin.firestore.Timestamp): string {
   const date = timestamp.toDate();
@@ -55,14 +65,11 @@ function getCurrentWeekID(timestamp: admin.firestore.Timestamp): string {
   return `${year}-W${week.toString().padStart(2, "0")}`;
 }
 
-function getISOWeek(date: Date): { year: number, week: number } {
+function getISOWeek(date: Date): { year: number; week: number } {
   const tmpDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = tmpDate.getUTCDay() === 0 ? 7 : tmpDate.getUTCDay();
   tmpDate.setUTCDate(tmpDate.getUTCDate() + 4 - dayNum);
   const yearStart = new Date(Date.UTC(tmpDate.getUTCFullYear(), 0, 1));
   const weekNo = Math.ceil(((tmpDate.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
-
   return { year: tmpDate.getUTCFullYear(), week: weekNo };
 }
-
-

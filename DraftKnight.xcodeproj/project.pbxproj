@@ -11,6 +11,7 @@
 		2610B0AD2E2216E300BC5F67 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 2610B0AC2E2216DB00BC5F67 /* .gitignore */; };
 		264106B32E3EB48800DF25FB /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 264106B22E3EB48800DF25FB /* FirebaseAuth */; };
 		26539F592E26CBA10042CEF0 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 26539F582E26CBA10042CEF0 /* Lottie */; };
+		268269ED2E4FBCC4000C82A9 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 268269EC2E4FBCC4000C82A9 /* FirebaseFunctions */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +64,7 @@
 				2610B06E2E22157800BC5F67 /* FirebaseFirestore in Frameworks */,
 				264106B32E3EB48800DF25FB /* FirebaseAuth in Frameworks */,
 				26539F592E26CBA10042CEF0 /* Lottie in Frameworks */,
+				268269ED2E4FBCC4000C82A9 /* FirebaseFunctions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -127,6 +129,7 @@
 				2610B06D2E22157800BC5F67 /* FirebaseFirestore */,
 				26539F582E26CBA10042CEF0 /* Lottie */,
 				264106B22E3EB48800DF25FB /* FirebaseAuth */,
+				268269EC2E4FBCC4000C82A9 /* FirebaseFunctions */,
 			);
 			productName = DraftKnight;
 			productReference = 2610B0102E2214C300BC5F67 /* DraftKnight.app */;
@@ -323,7 +326,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = KRBNR465QB;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -423,8 +426,8 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -451,8 +454,8 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -613,6 +616,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 26539F572E26CBA10042CEF0 /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
+		};
+		268269EC2E4FBCC4000C82A9 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2610B06C2E22157800BC5F67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
