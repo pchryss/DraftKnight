@@ -26,6 +26,9 @@ struct PrevLeaderboardView: View {
                 .ignoresSafeArea()
             VStack {
                 Text("\(gameData.username)")
+                    .font(.system(size: 36, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding()
                 Text("Final Score: \(String(format: "%.1f", gameData.score))")
                     .foregroundColor(.white)
                 ForEach(0..<7) { index in
