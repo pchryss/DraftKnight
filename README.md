@@ -6,7 +6,7 @@ During my internship with Emory University's AppHatchery, I have been able to re
 DraftKnight is essentially a mobile version of a popular web-based game amongst NFL fans (https://nflperry.com/game-mode). The objective is to reach the highest # of fantasy points by picking a player from a given randomized team without knowing which teams you will get in the future. 
 
 ## 🎮 How To Play!
-Download DraftKnight on the iOS store!
+[Download DraftKnight on the iOS App Store!](https://apps.apple.com/us/app/draftknight/id6749776883)
 
 ## 🛠️ Tools
 * Design : Figma
