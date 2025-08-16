@@ -5,11 +5,8 @@ During my internship with Emory University's AppHatchery, I have been able to re
 
 DraftKnight is essentially a mobile version of a popular web-based game amongst NFL fans (https://nflperry.com/game-mode). The objective is to reach the highest # of fantasy points by picking a player from a given randomized team without knowing which teams you will get in the future. 
 
-## 🎮 How To Play! (only local in xcode currently :/)
-```bash
-git clone https://github.com/pchryss/DraftKnight
-``` 
-Open DraftKnight in XCode and load the project into your iOS device
+## 🎮 How To Play!
+Download DraftKnight on the iOS store!
 
 ## 🛠️ Tools
 * Design : Figma
@@ -17,12 +14,30 @@ Open DraftKnight in XCode and load the project into your iOS device
 * Database : Firestore
 
 ## 🗺️ Roadmap
-* Cleaning up UI / Functionality
-* Launch to App Store!
-* Global Leaderboards
+* Better UI design on auth screen (login/signup toggle looks like a button)
 * Multiplayer Support
 
 ## 📸 Dev Log
+
+### August 15, 2025
+* Updated the user profile to include a username on signup, so that the global leaderboard now shows the user that achieved the score
+<div style="display: flex; gap: 10px; align-items: flex-start;">
+  <img src="images/11_username_leaderboard.png" alt="show username on leaderboard" height="200"/>
+</div>
+
+### August 8, 2025
+* Implemented the "View" buttons on the leaderboard, so now the user can see the actual teams that the user picked to make up the score.
+* Launched DraftKnight 1.0.0 on the app store!
+<div style="display: flex; gap: 10px; align-items: flex-start;">
+  <img src="images/10_previousGame.png" alt="previous game view" height="200"/>
+  <img src="images/10_appstore.png" alt="app store image" height="200"/>
+</div>
+
+### August 7, 2025
+Implemented a global weekly leaderboard. Uses a firebase function to maintain the top 10 highest scores every week. Function is ran automatically whenever a user completes a game.
+<div style="display: flex; gap: 10px; align-items: flex-start;">
+  <img src="images/9_leaderboard.png" alt="leaderboard view" height="200"/>
+</div>
 
 ### August 3, 2025
 A bunch of updates today
