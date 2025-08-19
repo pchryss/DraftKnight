@@ -15,6 +15,8 @@ DraftKnight is essentially a mobile version of a popular web-based game amongst 
 
 ## 🗺️ Roadmap
 * Better UI design on auth screen (login/signup toggle looks like a button)
+* Fix "Forgot password"
+* Address accessibility issues
 * Multiplayer Support
 
 ## 📸 Dev Log
